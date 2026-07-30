@@ -1,0 +1,19 @@
+### Register a user
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "test",
+  "email": "test@eco.com",
+  "password": "test123",
+  "role": "Administrator"
+}
+
+### Login
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@eco.com",
+  "password": "test123"
+}
