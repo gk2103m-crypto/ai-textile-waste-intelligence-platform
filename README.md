@@ -1,71 +1,114 @@
-# ♻️ AI Textile Waste Intelligence Platform
+# AI Textile Waste Intelligence Platform
 
-### Infosys Springboard Virtual Internship — Milestone 2 (Week 4) Submission
+An enterprise-grade, full-stack artificial intelligence and sustainability intelligence platform designed for closed-loop textile waste sorting, circular economy benchmarking, and environmental ESG impact reporting.
 
-An enterprise-grade full-stack AI platform designed to automate textile waste sorting, material classification, defect detection, and recyclability assessment using Computer Vision and Deep Learning.
-
----
-
-## 🎯 Milestone 2 Objectives & Achievements (Week 3 & Week 4)
-
-In **Milestone 2**, we implemented the core **AI / Machine Learning Engines** and integrated them with our full-stack architecture:
-
-- [x] **Material Classification Engine:** Operational 25-class CNN model (MobileNetV2 / TensorFlow) to identify fabric types (_Cotton, Denim, Silk, Wool, Velvet, Polyester, etc._) — validated with 76%+ confidence on test samples.
-- [⚠️] **Defect & Condition Detection:** 9-class CNN model trained and integrated into the pipeline; currently under calibration to improve prediction accuracy across all condition categories. Material classification is fully validated; condition model refinement is in progress for Milestone 3.
-- [x] **Recyclability Assessment Workflow:** Automated business logic mapping that calculates a **Circularity Score (/100)** and recommends recycling strategies based on detected material and condition:
-  - _Good / Defect-Free (Score: 95+)_ ➔ **Direct Reuse / Resale**
-  - _Torn / Damaged (Score: 70+)_ ➔ **Mechanical Recycling / Repair**
-  - _Stained / Flawed (Score: 55+)_ ➔ **Chemical Recycling / Industrial Wash**
-- [x] **Full-Stack AI Scanner Integration:** Integrated the Dual-AI Python pipeline with FastAPI backend endpoints (`POST /api/inventory/upload`) and React.js Frontend Interactive Scanner Modal.
+**Developed for:** Infosys Springboard Internship Project  
+**Current Progress:** Milestone 1, Milestone 2 & Milestone 3 (Weeks 1 to 6 Completed)
 
 ---
 
-## 🛠️ Tech Stack & Libraries Used
+## 1. Project Overview
 
-| Component                | Technology / Tools                                     |
-| :----------------------- | :----------------------------------------------------- |
-| **Backend Framework**    | Python 3.10+, FastAPI, Uvicorn                         |
-| **AI / Computer Vision** | TensorFlow / Keras, MobileNetV2, OpenCV, Pillow, NumPy |
-| **Frontend Framework**   | React.js, Tailwind CSS, Axios                          |
-| **Database & ORM**       | PostgreSQL, SQLAlchemy                                 |
-| **Version Control**      | Git & GitHub                                           |
+The **AI Textile Waste Intelligence Platform** automates the classification, scoring, and recycling routing of post-consumer and industrial textile waste. Using dual Convolutional Neural Network (CNN) models and a strict mathematical sustainability engine, the platform quantifies material recovery potential and calculates real-time ESG metrics including CO₂ emissions saved, water conservation, energy recovery, and landfill waste diversion.
 
 ---
 
-## 🧠 AI Pipeline Architecture
+## 2. Milestone & Module Implementation Breakdown
 
-1. **Image Preprocessing:** Input textile images are resized to `224x224` and normalized to `[0, 1]` tensor arrays.
-2. **Dual-Model Inference (`ml_service.py`):**
-   - **Model 1 (`material_classifier.h5`):** Predicts textile composition.
-   - **Model 2 (`condition_classifier.h5`):** Identifies defect severity.
-3. **Database Logging:** Scan results are automatically persisted to the PostgreSQL `WasteInventory` table with timestamp and circularity metrics.
+### Milestone 1: Weeks 1 & 2 — Project Initialization & Core Setup
+
+- **Module 1: Authentication & Role-Based Access Control (RBAC)**
+  - Secure JWT-based authentication supporting four distinct industry roles:
+    1. `Recycling Facility Operator`
+    2. `Sustainability Manager`
+    3. `Textile Manufacturer`
+    4. `Administrator`
+- **Module 2: Textile Inventory & Waste Management Workflow**
+  - PostgreSQL/SQLAlchemy schema (`WasteInventory`) for logging waste batches, fabric composition, source origin, condition, and quantity (kg).
+  - Full CRUD REST API endpoints (`/api/inventory`).
 
 ---
 
-## 🚀 How to Run the Project Locally
+### Milestone 2: Weeks 3 & 4 — AI Material Recognition & Waste Classification
 
-### 1. Start the FastAPI Backend
+- **Module 3: Image Analysis Engine**
+  - Automated image preprocessing, tensor normalization (`224x224`), and batch ingestion pipeline.
+- **Module 4: Material Classification Engine (`material_classifier.h5`)**
+  - Deep learning model classifying 25 distinct fabric classes (Cotton, Denim, Wool, Silk, Polyester, Nylon, Corduroy, Velvet, etc.).
+- **Module 5: Condition & Defect Categorization Engine (`condition_classifier.h5`)**
+  - Identifies structural integrity and physical defects (`Defect-Free`, `Hole`, `Broken Stitch`, `Stain`, `Vertical/Horizontal Flaws`).
+- **Module 6: Recycling Recommendation Engine**
+  - Automated mapping to seven sustainable processing pathways (e.g., Direct Reuse/Resale, Mechanical Recycling, Chemical Recycling, Industrial Wash).
 
-\`\`\`bash
-cd backend
+---
 
-# Activate virtual environment
+### Milestone 3: Weeks 5 & 6 — Sustainability Intelligence & ESG Reporting
 
-venv\Scripts\activate # Windows
+- **Module 7: Sustainability Intelligence Engine**
+  - Fabric-specific impact analytics calculating resource savings per kg of diverted textile waste:
+    - **CO₂ Emissions Saved (kg)**
+    - **Water Conserved (Liters)**
+    - **Energy Recovered (kWh)**
+- **Module 8: Environmental Impact Assessment Engine**
+  - Quantifies total landfill waste diversion rate and tracks global ESG performance benchmarks across facility operations.
+- **Module 9: Waste Scoring Engine (Weighted Circularity Model)**
+  - Strict mathematical scoring formula evaluating recovery viability out of 100:
+    - `Circularity Score = Material Recyclability (35%) + Material Condition (20%) + Reuse Potential (20%) + Environmental Benefit (15%) + Processing Feasibility (10%)`
+  - Categorizes waste into document-defined recovery tiers:
+    - `Excellent Recovery Potential` (Score >= 85)
+    - `High Recovery Potential` (Score >= 70)
+    - `Moderate Recovery Potential` (Score >= 55)
+    - `Limited Recovery Potential` (Score >= 40)
+    - `Disposal Recommended` (Score < 40)
+- **Module 10: Full-Stack ESG Dashboard & Reporting UI**
+  - Real-time analytical KPI cards displaying aggregated sustainability metrics via FastAPI endpoint (`GET /api/inventory/sustainability-stats`).
+  - Visual progress breakdowns for weighted score parameters and instant **PDF ESG Report Export** capability.
 
-# source venv/bin/activate # Linux/Mac
+---
 
-# Run Server
+## 3. Tech Stack
 
-uvicorn main:app --reload
-\`\`\`
+### Backend Engine
 
-### 2. Start the React Frontend
+- **Framework:** FastAPI (Python 3.10+)
+- **Database & ORM:** PostgreSQL / SQLite with SQLAlchemy
+- **AI / ML:** TensorFlow / Keras, NumPy, Pillow, OpenCV
+- **Authentication:** OAuth2 with JWT (JSON Web Tokens)
 
-\`\`\`bash
-cd frontend
-npm install
-npm run dev
-\`\`\`
+### Frontend Application
 
-Visit `http://localhost:5173` to access the platform.
+- **Framework:** React.js (Vite)
+- **Styling:** Tailwind CSS
+- **HTTP Client:** Axios
+- **Reporting:** Print/PDF Report Generation
+
+---
+
+## 4. Architecture & API Endpoints
+
+### Key REST API Routes
+
+| HTTP Method | Endpoint                              | Description                                             |
+| :---------- | :------------------------------------ | :------------------------------------------------------ |
+| `POST`      | `/api/auth/register`                  | Register user with designated RBAC role                 |
+| `POST`      | `/api/auth/login`                     | Authenticate user and return JWT access token           |
+| `GET`       | `/api/inventory`                      | Retrieve all logged textile waste inventory batches     |
+| `GET`       | `/api/inventory/sustainability-stats` | Fetch aggregated ESG savings and circularity metrics    |
+| `POST`      | `/api/inventory/upload`               | Process image through Dual AI & Sustainability Engines  |
+| `GET`       | `/api/analytics`                      | Retrieve material and condition distribution statistics |
+
+---
+
+## 5. Getting Started & Setup Instructions
+
+### Prerequisites
+
+- Python 3.10 or higher
+- Node.js (v18+) & npm
+
+### Backend Setup
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```

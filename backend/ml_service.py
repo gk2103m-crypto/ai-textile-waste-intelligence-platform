@@ -1,5 +1,6 @@
 """
-ML Inference Service - Force Fix Version
+ML Inference Service - Force Fix Version with Module 7, 8 & 9 Integration
+
 """
 
 import os
@@ -8,6 +9,9 @@ import numpy as np
 from PIL import Image
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
+
+#  Milestone 3: Connecting Sustainability Intelligence Engines (Modules 7, 8 & 9)
+from sustainability_service import calculate_circularity_score, generate_environmental_impact
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -34,7 +38,7 @@ condition_model = None
 
 def load_ai_models():
     global material_model, condition_model
-    print("🔥 [DEBUG] CORRECT ml_service.py IS RUNNING! 🔥")
+    print(" [DEBUG] CORRECT ml_service.py IS RUNNING WITH SUSTAINABILITY ENGINE! ")
 
     if os.path.exists(MATERIAL_MODEL_PATH):
         material_model = load_model(MATERIAL_MODEL_PATH)
@@ -98,41 +102,55 @@ def predict_condition(img_input) -> dict:
         return {
             "condition": "Good",
             "detected_defect": "Defect-Free",
-            "circularity_score": 95,
             "strategy": "Direct Reuse / Resale"
         }
     elif detected_condition in ["hole", "Broken stitch", "Cut", "Tear"]:
         return {
             "condition": "Torn / Damaged",
             "detected_defect": detected_condition.title(),
-            "circularity_score": 72,
             "strategy": "Mechanical Recycling / Repair"
         }
     else:
         return {
             "condition": "Stained / Flawed",
             "detected_defect": detected_condition.title(),
-            "circularity_score": 58,
             "strategy": "Chemical Recycling / Industrial Wash"
         }
 
 
 def process_waste_image(img_input) -> dict:
+    # 1. AI Predictions (Material & Condition)
     material, confidence = predict_material(img_input)
     condition_data = predict_condition(img_input)
+
+    # 2.  Module 9: Strict Weighted Circularity Score Calculation
+    scoring_result = calculate_circularity_score(material, condition_data["condition"])
+    final_score = scoring_result["circularity_score"]
+    recovery_category = scoring_result["circularity_category"]
+
+    # 3.  Module 7 & 8: Environmental Impact & CO2 Savings Calculation (per 1.0 kg standard batch)
+    impact_data = generate_environmental_impact(material, quantity_kg=1.0)
 
     return {
         "detected_material": material,
         "material_confidence": f"{confidence}%",
         "detected_condition": condition_data["condition"],
         "detected_defect": condition_data["detected_defect"],
-        "circularity_score": condition_data["circularity_score"],
+        "circularity_score": final_score,
+        "circularity_category": recovery_category,
         "recommended_strategy": condition_data["strategy"],
 
-        # Backward-compatible extra keys (safe to keep)
+        # Environmental Impact Analytics (CO2, Water, Energy Savings)
+        "co2_savings_kg": impact_data["co2_savings_kg"],
+        "water_savings_liters": impact_data["water_savings_liters"],
+        "energy_savings_kwh": impact_data["energy_savings_kwh"],
+        "landfill_reduction_kg": impact_data["landfill_reduction_kg"],
+        "score_breakdown": scoring_result["breakdown"],
+
+        # Backward-compatible extra keys (safe to keep for existing frontend)
         "material": material,
         "fabric_type": material,
         "condition": condition_data["condition"],
-        "score": condition_data["circularity_score"],
+        "score": final_score,
         "strategy": condition_data["strategy"],
     }

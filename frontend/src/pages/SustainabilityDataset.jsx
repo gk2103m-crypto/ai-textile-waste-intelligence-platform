@@ -1,12 +1,24 @@
-const MOCK_DATA = [
-  { id: 1, brand: "EcoWear", country: "India", material: "Cotton", rating: "A", carbon: "2.1 kg CO2/kg" },
-  { id: 2, brand: "GreenFiber", country: "Bangladesh", material: "Polyester", rating: "C", carbon: "5.8 kg CO2/kg" },
-  { id: 3, brand: "PureLinen Co.", country: "India", material: "Linen", rating: "B", carbon: "3.4 kg CO2/kg" },
-];
-
-const RATING_COLORS = { A: "bg-green-100 text-green-700", B: "bg-blue-100 text-blue-700", C: "bg-yellow-100 text-yellow-700", D: "bg-red-100 text-red-700" };
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function SustainabilityDataset() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get('http://localhost:8000/api/inventory')
+      .then(res => setItems(res.data))
+      .catch(err => console.error("Error fetching inventory:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const getRatingColor = (score) => {
+    if (score >= 85) return "bg-green-100 text-green-700";
+    if (score >= 70) return "bg-blue-100 text-blue-700";
+    if (score >= 55) return "bg-yellow-100 text-yellow-700";
+    return "bg-red-100 text-red-700";
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Sustainability Dataset</h2>
@@ -14,24 +26,36 @@ export default function SustainabilityDataset() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-800 text-white">
-              <th className="p-4">ID</th><th className="p-4">Brand</th><th className="p-4">Country</th><th className="p-4">Material</th><th className="p-4">Rating</th><th className="p-4">Carbon Footprint</th>
+              <th className="p-4">Batch ID</th>
+              <th className="p-4">Fabric Type</th>
+              <th className="p-4">Condition</th>
+              <th className="p-4">Circularity Score</th>
+              <th className="p-4">Category</th>
             </tr>
           </thead>
           <tbody>
-            {MOCK_DATA.map(row => (
-              <tr key={row.id} className="border-b">
-                <td className="p-4">#{row.id}</td>
-                <td className="p-4 font-semibold">{row.brand}</td>
-                <td className="p-4">{row.country}</td>
-                <td className="p-4">{row.material}</td>
-                <td className="p-4"><span className={`px-2 py-1 rounded text-sm font-medium ${RATING_COLORS[row.rating]}`}>{row.rating}</span></td>
-                <td className="p-4">{row.carbon}</td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan="5" className="p-4 text-center text-gray-500">Loading...</td></tr>
+            ) : items.length === 0 ? (
+              <tr><td colSpan="5" className="p-4 text-center text-gray-500">No data found. Scan or add inventory first.</td></tr>
+            ) : (
+              items.map(item => (
+                <tr key={item.batch_id} className="border-b">
+                  <td className="p-4">#{item.batch_id}</td>
+                  <td className="p-4 font-semibold">{item.fabric_type}</td>
+                  <td className="p-4">{item.condition}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded text-sm font-medium ${getRatingColor(item.circularity_score)}`}>
+                      {item.circularity_score || 0}/100
+                    </span>
+                  </td>
+                  <td className="p-4 text-sm text-gray-600">{item.circularity_category || "—"}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-gray-400 mt-3 italic">Real-time dataset integration planned for Milestone 3.</p>
     </div>
   );
 }

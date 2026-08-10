@@ -1,10 +1,21 @@
 export const MENU_CONFIG = {
-  Administrator: [
+  Admin: [
     { label: "Dashboard", path: "/dashboard" },
+    { label: "AI Analysis", path: "/analysis" },
+    { label: "Waste Scoring", path: "/sustainability" },
+    { label: "ESG Reports", path: "/esg-reports" },
     { label: "My Inventory", path: "/inventory" },
     { label: "User Management", path: "/admin/users" },
     { label: "Manufacturer Management", path: "/admin/manufacturers" },
-    { label: "Sustainability Dataset", path: "/sustainability" },
+  ],
+  Administrator: [
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "AI Analysis", path: "/analysis" },
+    { label: "Waste Scoring", path: "/sustainability" },
+    { label: "ESG Reports", path: "/esg-reports" },
+    { label: "My Inventory", path: "/inventory" },
+    { label: "User Management", path: "/admin/users" },
+    { label: "Manufacturer Management", path: "/admin/manufacturers" },
   ],
   "Textile Manufacturer": [
     { label: "Dashboard", path: "/dashboard" },

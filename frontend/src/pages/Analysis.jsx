@@ -5,6 +5,7 @@ import { UploadCloud, CheckCircle, Loader2 } from 'lucide-react';
 const Analysis = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewBase64, setPreviewBase64] = useState(null);
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
 
@@ -13,7 +14,12 @@ const Analysis = () => {
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
-      setAnalysisResult(null); 
+      setAnalysisResult(null);
+
+      // Convert to base64 for reliable PDF embedding
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewBase64(reader.result);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -23,7 +29,7 @@ const Analysis = () => {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    formData.append("condition", "Torn"); 
+    formData.append("condition", "Torn");
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/inventory/upload", {
@@ -32,7 +38,7 @@ const Analysis = () => {
       });
 
       if (!response.ok) throw new Error("Analysis Failed");
-      
+
       const data = await response.json();
       setAnalysisResult(data);
     } catch (error) {
@@ -47,16 +53,16 @@ const Analysis = () => {
     if (!analysisResult) return;
 
     const doc = new jsPDF();
-    const currentDateTime = new Date().toLocaleString(); 
+    const currentDateTime = new Date().toLocaleString();
 
     doc.setFontSize(22);
-    doc.setTextColor(34, 139, 34); 
+    doc.setTextColor(34, 139, 34);
     doc.text("AI Textile Waste Analysis Report", 20, 20);
 
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
     doc.text(`Scan Date & Time: ${currentDateTime}`, 20, 30);
-    doc.line(20, 35, 190, 35); 
+    doc.line(20, 35, 190, 35);
 
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
@@ -66,12 +72,13 @@ const Analysis = () => {
     doc.text(`4. Circularity / Reusable Score: ${analysisResult.circularity_score || 0}/100`, 20, 80);
     doc.text(`5. Recommended Strategy: ${analysisResult.recommended_strategy || 'Unknown'}`, 20, 90);
 
-    if (previewUrl) {
+    if (previewBase64) {
       try {
-        doc.text("6. Scanned Cloth Image Details:", 20, 110);
-        doc.text("(Image referenced securely from local session)", 20, 120);
+        doc.text("6. Scanned Textile Image:", 20, 105);
+        doc.addImage(previewBase64, 'JPEG', 20, 110, 80, 80);
       } catch (err) {
-        console.log("Image render skipped for PDF formatting");
+        console.log("Image render skipped:", err);
+        doc.text("(Image could not be embedded)", 20, 120);
       }
     }
 
@@ -81,7 +88,7 @@ const Analysis = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">AI Textile Analysis</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center text-center">
@@ -90,16 +97,16 @@ const Analysis = () => {
             ) : (
               <UploadCloud className="h-16 w-16 text-gray-400 mb-4" />
             )}
-            
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleFileChange} 
-              className="hidden" 
-              id="fileInput" 
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              id="fileInput"
             />
-            <label 
-              htmlFor="fileInput" 
+            <label
+              htmlFor="fileInput"
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded cursor-pointer transition-colors"
             >
               Select Textile Image
@@ -107,12 +114,11 @@ const Analysis = () => {
             <p className="text-sm text-gray-500 mt-2">Supports JPG, PNG formats</p>
           </div>
 
-          <button 
-            onClick={handleAnalyze} 
+          <button
+            onClick={handleAnalyze}
             disabled={!selectedFile || loading}
-            className={`w-full mt-4 py-3 rounded-lg font-bold text-white flex justify-center items-center ${
-              !selectedFile || loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
-            }`}
+            className={`w-full mt-4 py-3 rounded-lg font-bold text-white flex justify-center items-center ${!selectedFile || loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
+              }`}
           >
             {loading ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : <CheckCircle className="h-5 w-5 mr-2" />}
             {loading ? 'AI is Analyzing...' : 'Run AI Analysis'}
@@ -121,7 +127,7 @@ const Analysis = () => {
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h3 className="text-xl font-bold text-gray-700 mb-4 border-b pb-2">Analysis Report</h3>
-          
+
           {analysisResult ? (
             <div className="space-y-4">
               <div className="bg-blue-50 p-4 rounded-lg">
