@@ -42,7 +42,7 @@ The **AI Textile Waste Intelligence Platform** automates the classification, sco
 
 ---
 
-### Milestone 3: Weeks 5 & 6 — Sustainability Intelligence & ESG Reporting
+### Milestone 3: Weeks 5 & 6 — Sustainability Intelligence & Enterprise ESG Integration
 
 - **Module 7: Sustainability Intelligence Engine**
   - Fabric-specific impact analytics calculating resource savings per kg of diverted textile waste:
@@ -63,6 +63,10 @@ The **AI Textile Waste Intelligence Platform** automates the classification, sco
 - **Module 10: Full-Stack ESG Dashboard & Reporting UI**
   - Real-time analytical KPI cards displaying aggregated sustainability metrics via FastAPI endpoint (`GET /api/inventory/sustainability-stats`).
   - Visual progress breakdowns for weighted score parameters and instant **PDF ESG Report Export** capability.
+- **Module 11: Notification & Alert System (Upcoming)**
+  - Automated UI toast notifications and alert popups for threshold limits (e.g., inventory overload, high defect rates).
+- **Module 12: Comprehensive Reports & Export System (Upcoming)**
+  - Extends native export functionality to include **Excel/CSV Data Export** using `SheetJS`, enabling tabular data analysis for operational managers.
 
 ---
 
@@ -80,7 +84,7 @@ The **AI Textile Waste Intelligence Platform** automates the classification, sco
 - **Framework:** React.js (Vite)
 - **Styling:** Tailwind CSS
 - **HTTP Client:** Axios
-- **Reporting:** Print/PDF Report Generation
+- **Reporting:** Print/PDF/Excel Report Generation
 
 ---
 
