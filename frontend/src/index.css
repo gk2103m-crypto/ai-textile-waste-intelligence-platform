@@ -3,3 +3,31 @@
 body {
   background-color: #f3f4f6;
 }
+
+/* ─── Module 11: Toast Notification Animations ───────────────────────────── */
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastShrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+/* Applied to each toast card on mount */
+.toast-slide-in {
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Applied to the bottom progress bar inside each card */
+.toast-shrink {
+  animation: toastShrink 4s linear forwards;
+}

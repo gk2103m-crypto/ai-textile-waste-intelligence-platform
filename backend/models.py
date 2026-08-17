@@ -29,7 +29,7 @@ class User(Base):
     role = Column(Enum(UserRole), default=UserRole.MANUFACTURER)
 
 
-# 2. TEXTILE INVENTORY & ESG TABLE (Modules 2, 7, 8 & 9)
+# 2. TEXTILE INVENTORY & ESG TABLE (Modules 2, 5, 7, 8 & 9)
 
 # Defining the Textile Inventory Management Schema based on PDF requirements
 class WasteInventory(Base):
@@ -43,13 +43,18 @@ class WasteInventory(Base):
     condition = Column(String)                               # Condition
     collection_date = Column(DateTime(timezone=True), server_default=func.now()) # Collection Date
 
+    # MILESTONE 2: Module 5 — Waste Classification Engine
+    # Waste categories as per document: Recyclable, Reusable, Repairable, Upcyclable, Compostable, Hazardous
+    waste_category = Column(String, default="Recyclable")   # GAP-06 FIX: Document Module 5
+
     # MILESTONE 3: Module 7, 8 & 9 ESG & Sustainability Columns
     circularity_score = Column(Float, default=0.0)
     circularity_category = Column(String, default="Moderate Recovery Potential")
+    reuse_score = Column(Float, default=0.0)                # GAP-06 FIX: Document Module 9 (Reuse score)
     co2_saved_kg = Column(Float, default=0.0)
     water_saved_liters = Column(Float, default=0.0)
     energy_saved_kwh = Column(Float, default=0.0)
     landfill_diverted_kg = Column(Float, default=0.0)
     
     # AI Recommendation Strategy
-    strategy = Column(String, default="Mechanical Recycling")
+    strategy = Column(String, default="Mechanical Recycling")

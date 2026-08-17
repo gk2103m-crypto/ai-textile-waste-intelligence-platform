@@ -2,7 +2,7 @@ export const MENU_CONFIG = {
   Admin: [
     { label: "Dashboard", path: "/dashboard" },
     { label: "AI Analysis", path: "/analysis" },
-    { label: "Waste Scoring", path: "/sustainability" },
+    { label: "Sustainability Manager", path: "/sustainability" },
     { label: "ESG Reports", path: "/esg-reports" },
     { label: "My Inventory", path: "/inventory" },
     { label: "User Management", path: "/admin/users" },
@@ -11,7 +11,7 @@ export const MENU_CONFIG = {
   Administrator: [
     { label: "Dashboard", path: "/dashboard" },
     { label: "AI Analysis", path: "/analysis" },
-    { label: "Waste Scoring", path: "/sustainability" },
+    { label: "Sustainability Manager", path: "/sustainability" },
     { label: "ESG Reports", path: "/esg-reports" },
     { label: "My Inventory", path: "/inventory" },
     { label: "User Management", path: "/admin/users" },
@@ -21,7 +21,7 @@ export const MENU_CONFIG = {
     { label: "Dashboard", path: "/dashboard" },
     { label: "AI Analysis", path: "/analysis" },
     { label: "My Inventory", path: "/inventory" },
-    { label: "Sustainability Dataset", path: "/sustainability" },
+    { label: "Sustainability Manager", path: "/sustainability" },
   ],
   "Recycling Facility Operator": [
     { label: "Dashboard", path: "/dashboard" },
@@ -31,7 +31,9 @@ export const MENU_CONFIG = {
   ],
   "Sustainability Manager": [
     { label: "Dashboard", path: "/dashboard" },
-    { label: "Sustainability Metrics", path: "/sustainability" },
+    { label: "AI Analysis", path: "/analysis" },
+    { label: "Waste Inventory", path: "/inventory" },
+    { label: "Sustainability Manager", path: "/sustainability" },
     { label: "ESG Reports", path: "/esg-reports" },
   ],
 };

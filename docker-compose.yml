@@ -1,0 +1,93 @@
+# =============================================================================
+# AI Textile Waste Intelligence Platform — Docker Compose
+# Orchestrates: FastAPI backend + React/Vite frontend + PostgreSQL database
+# =============================================================================
+#
+# Usage:
+#   Start all services:      docker-compose up --build
+#   Stop all services:       docker-compose down
+#   Stop + remove volumes:   docker-compose down -v
+#   View logs:               docker-compose logs -f
+#   Rebuild one service:     docker-compose up --build backend
+#
+# Default access:
+#   Frontend  →  http://localhost:5173
+#   Backend   →  http://localhost:8000
+#   API docs  →  http://localhost:8000/docs
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL Database ─────────────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: textile_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: oracle10g
+      POSTGRES_DB: textile_waste_db
+    ports:
+      - "5432:5432" # expose for local DB tools (e.g., pgAdmin)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # persist data across restarts
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d textile_waste_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI Backend ─────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend # Dockerfile in backend/
+      dockerfile: Dockerfile
+    container_name: textile_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Override the hardcoded localhost DATABASE_URL to point at the db service
+      DATABASE_URL: "postgresql://postgres:oracle10g@db:5432/textile_waste_db"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      # Mount .h5 model files from project root into /models inside container
+      - ./material_classifier.h5:/models/material_classifier.h5:ro
+      - ./condition_classifier.h5:/models/condition_classifier.h5:ro
+      # Hot-reload: mount backend source for development
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy # wait for Postgres to be ready before starting
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/ || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── React / Vite Frontend ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend # Dockerfile in frontend/
+      dockerfile: Dockerfile
+    container_name: textile_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      # Vite reads VITE_API_URL to know where the backend lives.
+      # Update API calls in the app to use: import.meta.env.VITE_API_URL
+      VITE_API_URL: "http://localhost:8000"
+    volumes:
+      # Hot-reload: mount source (node_modules excluded via .dockerignore)
+      - ./frontend:/app
+      - /app/node_modules # anonymous volume keeps container's node_modules
+    depends_on:
+      - backend
+
+# ── Named volumes ─────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local

@@ -1,9 +1,14 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-DATABASE_URL = "postgresql://postgres:oracle10g@localhost:5432/textile_waste_db"
+# Read from environment variable (set in docker-compose.yml) — fallback to sqlite for local dev
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./textile_waste.db"
+)
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

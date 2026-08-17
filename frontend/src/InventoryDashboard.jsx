@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useToast } from './context/ToastContext'; // Module 11: Notification & Alert System
 
 const InventoryDashboard = () => {
   const [inventory, setInventory] = useState([]);
@@ -9,6 +10,9 @@ const InventoryDashboard = () => {
   const [formData, setFormData] = useState({
     fabric_type: '', source: 'Pre-consumer', quantity_kg: '', color: '', condition: 'Good'
   });
+
+  // Module 11: Notification & Alert System
+  const { addToast } = useToast();
 
   // AI Scan State Variables
   const [showAiModal, setShowAiModal] = useState(false);
@@ -20,7 +24,19 @@ const InventoryDashboard = () => {
     try {
       const res = await axios.get('http://localhost:8000/api/inventory');
       setInventory(res.data);
-    } catch (error) { console.error("Error fetching data:", error); }
+
+      // Module 11 — Inventory Warning: alert when >10 pending batches
+      if (res.data.length > 10) {
+        addToast({
+          type: 'warning',
+          title: '⚠️ Inventory Warning',
+          message: `${res.data.length} waste batches are pending processing. Consider scheduling a collection run.`,
+          duration: 6000,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   useEffect(() => { fetchInventory(); }, []);
@@ -31,13 +47,28 @@ const InventoryDashboard = () => {
       if (editItem) {
         await axios.put(`http://localhost:8000/api/inventory/${editItem.batch_id}`, formData);
         setEditItem(null);
+        // Module 11 — Success: edit saved
+        addToast({
+          type: 'success',
+          title: '✏️ Batch Updated',
+          message: `Batch #${editItem.batch_id} (${formData.fabric_type}) has been updated successfully.`,
+        });
       } else {
         await axios.post('http://localhost:8000/api/inventory', formData);
+        // Module 11 — Success: new inventory added
+        addToast({
+          type: 'success',
+          title: '♻️ Inventory Added',
+          message: `${formData.fabric_type} (${formData.quantity_kg} kg) saved to database.`,
+        });
       }
       setShowForm(false);
       fetchInventory();
       setFormData({ fabric_type: '', source: 'Pre-consumer', quantity_kg: '', color: '', condition: 'Good' });
-    } catch (error) { console.error("Error saving:", error); }
+    } catch (error) {
+      console.error("Error saving:", error);
+      addToast({ type: 'error', title: '❌ Save Failed', message: 'Could not save inventory. Check backend connection.' });
+    }
   };
 
   const handleView = async (batch_id) => {
@@ -60,18 +91,27 @@ const InventoryDashboard = () => {
   };
 
   const handleDelete = async (batch_id) => {
-    if (!window.confirm("Idha delete pannalama?")) return;
+    if (!window.confirm(`Are you sure you want to permanently delete Batch #${batch_id}? This action cannot be undone.`)) return;
     try {
       await axios.delete(`http://localhost:8000/api/inventory/${batch_id}`);
       fetchInventory();
-    } catch (error) { console.error("Error deleting:", error); }
+      // Module 11 — Warning: deletion alert
+      addToast({
+        type: 'warning',
+        title: '🗑️ Batch Deleted',
+        message: `Inventory batch #${batch_id} has been permanently removed.`,
+      });
+    } catch (error) {
+      console.error("Error deleting:", error);
+      addToast({ type: 'error', title: '❌ Delete Failed', message: 'Could not delete batch. Check backend.' });
+    }
   };
 
   // ==========================================
   // AI IMAGE SCANNER HANDLER
   // ==========================================
   const handleAiScan = async () => {
-    if (!selectedFile) return alert("Dayavu seithu oru photo upload pannunga!");
+    if (!selectedFile) return alert("Please select an image file before scanning.");
     
     const uploadData = new FormData();
     uploadData.append('file', selectedFile);
@@ -86,9 +126,24 @@ const InventoryDashboard = () => {
       console.log("🔥 AI BACKEND RESPONSE:", res.data);
       setAiResult(res.data);
       fetchInventory(); // Auto update inventory table
+
+      // Module 11 — Recycling Opportunity Notification: AI scan complete
+      addToast({
+        type: 'success',
+        title: '🧠 AI Scan Complete',
+        message: `Detected: ${res.data.detected_material} — Circularity Score: ${res.data.circularity_score}/100 — ${res.data.recommended_strategy}`,
+        duration: 6000,
+      });
     } catch (error) {
       console.error("AI Scan Error:", error);
-      alert("AI Scan fail aayiduchu! Backend server on-la irukka nu check pannunga.");
+      alert("AI Scan failed. Please ensure the FastAPI backend server is running on port 8000.");
+      // Module 11 — Waste Collection Alert on scan failure
+      addToast({
+        type: 'error',
+        title: '❌ AI Scan Failed',
+        message: 'Could not connect to AI backend. Ensure FastAPI server is running on port 8000.',
+        duration: 6000,
+      });
     } finally {
       setAiLoading(false);
     }

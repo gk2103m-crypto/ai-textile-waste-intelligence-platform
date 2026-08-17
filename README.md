@@ -1,118 +1,127 @@
-# AI Textile Waste Intelligence Platform
+# ♻️ AI Textile Waste Intelligence Platform
 
-An enterprise-grade, full-stack artificial intelligence and sustainability intelligence platform designed for closed-loop textile waste sorting, circular economy benchmarking, and environmental ESG impact reporting.
+![Version](https://img.shields.io/badge/version-1.0-blue.svg)
+![React](https://img.shields.io/badge/React-18.x-61dafb.svg?logo=react)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.95%2B-009688.svg?logo=fastapi)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-FF6F00.svg?logo=tensorflow)
 
-**Developed for:** Infosys Springboard Internship Project  
-**Current Progress:** Milestone 1, Milestone 2 & Milestone 3 (Weeks 1 to 6 Completed)
-
----
-
-## 1. Project Overview
-
-The **AI Textile Waste Intelligence Platform** automates the classification, scoring, and recycling routing of post-consumer and industrial textile waste. Using dual Convolutional Neural Network (CNN) models and a strict mathematical sustainability engine, the platform quantifies material recovery potential and calculates real-time ESG metrics including CO₂ emissions saved, water conservation, energy recovery, and landfill waste diversion.
+An enterprise-grade, AI-powered platform designed to revolutionize textile waste management. By leveraging computer vision, material classification, and sustainability intelligence, the platform identifies fabric types, estimates recyclability, recommends optimal recycling/reuse strategies, and tracks environmental impacts (CO₂, water, and energy savings).
 
 ---
 
-## 2. Milestone & Module Implementation Breakdown
+## 📖 Project Overview
 
-### Milestone 1: Weeks 1 & 2 — Project Initialization & Core Setup
+The **Textile Waste Intelligence Platform** is built for recycling facility operators, fashion brands, sustainability managers, and textile manufacturers. It addresses the critical global challenge of textile waste by providing intelligent sorting, lifecycle tracking, and circular economy analytics.
 
-- **Module 1: Authentication & Role-Based Access Control (RBAC)**
-  - Secure JWT-based authentication supporting four distinct industry roles:
-    1. `Recycling Facility Operator`
-    2. `Sustainability Manager`
-    3. `Textile Manufacturer`
-    4. `Administrator`
-- **Module 2: Textile Inventory & Waste Management Workflow**
-  - PostgreSQL/SQLAlchemy schema (`WasteInventory`) for logging waste batches, fabric composition, source origin, condition, and quantity (kg).
-  - Full CRUD REST API endpoints (`/api/inventory`).
+By combining Deep Learning (CNNs) with robust Computer Vision guardrails, the platform delivers highly accurate defect detection and material classification, preventing "domain shift" hallucinations and ensuring flawless reporting for physical damage (e.g., holes, stains) versus normal wear.
 
 ---
 
-### Milestone 2: Weeks 3 & 4 — AI Material Recognition & Waste Classification
+## ✨ Core Features (The 13 Modules)
 
-- **Module 3: Image Analysis Engine**
-  - Automated image preprocessing, tensor normalization (`224x224`), and batch ingestion pipeline.
-- **Module 4: Material Classification Engine (`material_classifier.h5`)**
-  - Deep learning model classifying 25 distinct fabric classes (Cotton, Denim, Wool, Silk, Polyester, Nylon, Corduroy, Velvet, etc.).
-- **Module 5: Condition & Defect Categorization Engine (`condition_classifier.h5`)**
-  - Identifies structural integrity and physical defects (`Defect-Free`, `Hole`, `Broken Stitch`, `Stain`, `Vertical/Horizontal Flaws`).
-- **Module 6: Recycling Recommendation Engine**
-  - Automated mapping to seven sustainable processing pathways (e.g., Direct Reuse/Resale, Mechanical Recycling, Chemical Recycling, Industrial Wash).
+The platform is architected into 13 comprehensive modules to manage the end-to-end lifecycle of textile waste:
 
----
-
-### Milestone 3: Weeks 5 & 6 — Sustainability Intelligence & Enterprise ESG Integration
-
-- **Module 7: Sustainability Intelligence Engine**
-  - Fabric-specific impact analytics calculating resource savings per kg of diverted textile waste:
-    - **CO₂ Emissions Saved (kg)**
-    - **Water Conserved (Liters)**
-    - **Energy Recovered (kWh)**
-- **Module 8: Environmental Impact Assessment Engine**
-  - Quantifies total landfill waste diversion rate and tracks global ESG performance benchmarks across facility operations.
-- **Module 9: Waste Scoring Engine (Weighted Circularity Model)**
-  - Strict mathematical scoring formula evaluating recovery viability out of 100:
-    - `Circularity Score = Material Recyclability (35%) + Material Condition (20%) + Reuse Potential (20%) + Environmental Benefit (15%) + Processing Feasibility (10%)`
-  - Categorizes waste into document-defined recovery tiers:
-    - `Excellent Recovery Potential` (Score >= 85)
-    - `High Recovery Potential` (Score >= 70)
-    - `Moderate Recovery Potential` (Score >= 55)
-    - `Limited Recovery Potential` (Score >= 40)
-    - `Disposal Recommended` (Score < 40)
-- **Module 10: Full-Stack ESG Dashboard & Reporting UI**
-  - Real-time analytical KPI cards displaying aggregated sustainability metrics via FastAPI endpoint (`GET /api/inventory/sustainability-stats`).
-  - Visual progress breakdowns for weighted score parameters and instant **PDF ESG Report Export** capability.
-- **Module 11: Notification & Alert System (Upcoming)**
-  - Automated UI toast notifications and alert popups for threshold limits (e.g., inventory overload, high defect rates).
-- **Module 12: Comprehensive Reports & Export System (Upcoming)**
-  - Extends native export functionality to include **Excel/CSV Data Export** using `SheetJS`, enabling tabular data analysis for operational managers.
+1. **User Authentication & Role-Based Access** — Secure JWT authentication for Admins, Facility Operators, Sustainability Managers, and Manufacturers.
+2. **Textile Inventory & Waste Management** — Complete batch tracking, source management, and inventory monitoring.
+3. **Textile Image Analysis Engine** — Real-time fabric, pattern, and texture detection.
+4. **Material Classification Engine** — AI-driven fiber composition and blend identification (Cotton, Polyester, Wool, Silk, Denim, etc.).
+5. **Textile Waste Classification Engine** — Recyclability and reuse potential assessment.
+6. **Recycling Recommendation Engine** — Intelligent routing for mechanical/chemical recycling, direct reuse, or upcycling.
+7. **Sustainability Intelligence Engine** — Circular economy and resource recovery analytics.
+8. **Environmental Impact Assessment Engine** — Granular CO₂ savings, water conservation, and landfill diversion estimation.
+9. **Waste Scoring Engine** — 5-factor weighted model generating a unified **Circularity Score** (0-100).
+10. **Dashboard & Analytics** — Role-specific, data-rich dashboards with live KPI charts.
+11. **Notification & Alert System** — Global, real-time toast notifications for operational events.
+12. **Reports & Export System** — High-fidelity PDF and multi-sheet Excel exports for ESG compliance.
+13. **Integration & Deployment** — Docker containerization, REST API validation, and production-ready CI/CD readiness.
 
 ---
 
-## 3. Tech Stack
+## 🛠️ Tech Stack
 
-### Backend Engine
+### Frontend
+* **Framework:** React.js, Vite
+* **Styling:** Tailwind CSS (Dark Mode supported)
+* **Icons:** Lucide React
+* **Charts:** Chart.js / Recharts
 
-- **Framework:** FastAPI (Python 3.10+)
-- **Database & ORM:** PostgreSQL / SQLite with SQLAlchemy
-- **AI / ML:** TensorFlow / Keras, NumPy, Pillow, OpenCV
-- **Authentication:** OAuth2 with JWT (JSON Web Tokens)
+### Backend
+* **Framework:** FastAPI (Python)
+* **Database:** PostgreSQL (Primary), SQLite (Development Fallback)
+* **Authentication:** JWT (JSON Web Tokens)
 
-### Frontend Application
-
-- **Framework:** React.js (Vite)
-- **Styling:** Tailwind CSS
-- **HTTP Client:** Axios
-- **Reporting:** Print/PDF/Excel Report Generation
-
----
-
-## 4. Architecture & API Endpoints
-
-### Key REST API Routes
-
-| HTTP Method | Endpoint                              | Description                                             |
-| :---------- | :------------------------------------ | :------------------------------------------------------ |
-| `POST`      | `/api/auth/register`                  | Register user with designated RBAC role                 |
-| `POST`      | `/api/auth/login`                     | Authenticate user and return JWT access token           |
-| `GET`       | `/api/inventory`                      | Retrieve all logged textile waste inventory batches     |
-| `GET`       | `/api/inventory/sustainability-stats` | Fetch aggregated ESG savings and circularity metrics    |
-| `POST`      | `/api/inventory/upload`               | Process image through Dual AI & Sustainability Engines  |
-| `GET`       | `/api/analytics`                      | Retrieve material and condition distribution statistics |
+### AI & Machine Learning
+* **Models:** TensorFlow, Keras (.h5 CNN models)
+* **Computer Vision:** OpenCV (Hybrid ensemble verification)
+* **Data Processing:** NumPy, Pandas
 
 ---
 
-## 5. Getting Started & Setup Instructions
+## 🚀 Installation & Setup
 
 ### Prerequisites
+* **Node.js** (v16+)
+* **Python** (3.9+)
+* **PostgreSQL** (Optional for local dev, uses SQLite fallback)
 
-- Python 3.10 or higher
-- Node.js (v18+) & npm
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-org/ai-textile-waste-intelligence-platform.git
+cd ai-textile-waste-intelligence-platform
+```
 
-### Backend Setup
+### 2. Backend Setup
+```bash
+cd backend
+python -m venv venv
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+# Windows
+.\venv\Scripts\Activate.ps1
+# Mac/Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+*The backend will be available at http://localhost:8000*
+
+### 3. Frontend Setup
+Open a new terminal window:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*The frontend will be available at http://localhost:5173*
+
+---
+
+## 🔐 Default Login Credentials
+
+Upon fresh installation or database reset, use the following credentials to access the platform:
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin@textilewaste.ai` | `admin123` |
+| **Facility Operator** | `operator@textilewaste.ai` | `operator123` |
+| **Sustainability Manager**| `esg@textilewaste.ai` | `esg123` |
+| **Textile Manufacturer** | `manufacturer@textilewaste.ai` | `manufacturer123` |
+
+---
+
+## 📊 Evaluation & Circularity Scoring
+
+The core of our intelligence platform relies on a sophisticated 5-factor weighted algorithm:
+* **Material Recyclability:** 35%
+* **Material Condition:** 20%
+* **Reuse Potential:** 20%
+* **Environmental Benefit:** 15%
+* **Processing Feasibility:** 10%
+
+**Recovery Categories:**
+🟢 85-100: Excellent | 🔵 70-84: High | 🟡 55-69: Moderate | 🟠 40-54: Limited | 🔴 0-39: Disposal
+
+---
+
+## 📄 License
+This project is proprietary and confidential. © 2026 TextileWaste.AI

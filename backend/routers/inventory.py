@@ -104,7 +104,7 @@ def get_inventory_item(batch_id: int, db: Session = Depends(get_db)):
 
 @router.post("/api/inventory")
 def add_inventory(item: InventoryCreate, db: Session = Depends(get_db)):
-    new_item = WasteInventory(**item.dict())
+    new_item = WasteInventory(**item.model_dump())
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
@@ -150,6 +150,7 @@ async def analyze_waste_image(
             quantity_kg=1.0,
             color="Unknown",
             condition=ai_result["detected_condition"],
+            waste_category=ai_result.get("waste_category", "Recyclable"),  # GAP-07 FIX
             circularity_score=ai_result.get("circularity_score", 0.0),
             circularity_category=ai_result.get("circularity_category", "Moderate Recovery Potential"),
             co2_saved_kg=ai_result.get("co2_savings_kg", 0.0),

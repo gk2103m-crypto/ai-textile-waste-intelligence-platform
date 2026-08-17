@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Leaf, LogOut } from 'lucide-react';
 import { MENU_CONFIG } from '../config/menuConfig';
+import ToastNotification from './ToastNotification'; // Module 11: Notification & Alert System
 
 export default function Layout() {
   const location = useLocation();
@@ -16,6 +17,9 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Module 11: Global Toast Notification Stack — renders on every authenticated page */}
+      <ToastNotification />
+
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="h-16 flex items-center gap-2 px-6 border-b border-gray-100">

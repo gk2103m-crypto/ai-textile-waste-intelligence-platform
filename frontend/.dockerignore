@@ -1,0 +1,19 @@
+# Dependencies — let Docker install fresh inside the container
+node_modules/
+npm-debug.log*
+
+# Build output — not needed in dev container
+dist/
+build/
+
+# Environment files — inject via docker-compose environment: section
+.env
+.env.*
+
+# IDE & OS
+.vscode/
+.DS_Store
+
+# Git
+.git/
+.gitignore
