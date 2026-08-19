@@ -9,3 +9,10 @@ Whenever committing or pushing code in this workspace, ALWAYS push to BOTH of th
 2. **Backup Remote (Branch: `main`)**:
    `https://github.com/gk2103m-crypto/ai-textile-waste-intelligence-platform.git`
    Command: `git push origin main`
+
+### Configured Terminal Shortcut:
+You or the AI assistant can simply run:
+```bash
+git pushall
+```
+This automatically pushes to both remotes in one command.
