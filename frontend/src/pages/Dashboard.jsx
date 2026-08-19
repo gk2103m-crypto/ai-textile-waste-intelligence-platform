@@ -409,10 +409,10 @@ export default function Dashboard() {
     <div ref={dashboardRef}>
       {/* Dashboard Header — intentionally OUTSIDE pdf-area so button never appears in PDF */}
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Facility Overview</h2>
-          <p className="text-gray-500 text-sm mt-1">Live metrics from the AI sorting pipeline</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Facility Overview</h2>
+        <p className="text-gray-500 dark:text-slate-400 text-sm mt-1">Live metrics from the AI sorting pipeline</p>
+      </div>
 
         {/* ── Export Dropdown ───────────────────────────────────────────── */}
         <div className="relative" ref={dropdownRef}>
@@ -420,7 +420,7 @@ export default function Dashboard() {
           <button
             onClick={() => setExportOpen((prev) => !prev)}
             disabled={exportingPDF || exportingExcel}
-            className="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all duration-200 select-none"
+            className="flex items-center gap-2 bg-gray-800 dark:bg-slate-700 hover:bg-gray-900 dark:hover:bg-slate-600 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all duration-200 select-none"
           >
             {exportingPDF ? (
               <>
@@ -445,34 +445,34 @@ export default function Dashboard() {
 
           {/* Dropdown panel */}
           {exportOpen && !exportingPDF && !exportingExcel && (
-            <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-fade-in">
+            <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden z-50 animate-fade-in">
               {/* PDF option */}
               <button
                 onClick={handleExportPDF}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors group"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors group"
               >
-                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 group-hover:bg-red-200 transition-colors shrink-0">
-                  <FileText className="w-4 h-4 text-red-600" />
+                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/40 group-hover:bg-red-200 transition-colors shrink-0">
+                  <FileText className="w-4 h-4 text-red-600 dark:text-red-400" />
                 </span>
                 <div className="text-left">
                   <p className="font-semibold leading-none">Export to PDF</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Dashboard screenshot</p>
+                  <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">Dashboard screenshot</p>
                 </div>
               </button>
 
-              <div className="h-px bg-gray-100 mx-3" />
+              <div className="h-px bg-gray-100 dark:bg-slate-700 mx-3" />
 
               {/* Excel option */}
               <button
                 onClick={handleExportExcel}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors group"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400 transition-colors group"
               >
-                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 group-hover:bg-green-200 transition-colors shrink-0">
-                  <FileSpreadsheet className="w-4 h-4 text-green-700" />
+                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/40 group-hover:bg-green-200 transition-colors shrink-0">
+                  <FileSpreadsheet className="w-4 h-4 text-green-700 dark:text-green-400" />
                 </span>
                 <div className="text-left">
                   <p className="font-semibold leading-none">Export to Excel</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">3-sheet data workbook</p>
+                  <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">3-sheet data workbook</p>
                 </div>
               </button>
             </div>
@@ -485,35 +485,35 @@ export default function Dashboard() {
 
       {/* Top Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4 border-l-4 border-l-blue-500">
-          <div className="bg-blue-100 p-3 rounded-full">
-            <Package className="w-6 h-6 text-blue-600" />
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex items-center gap-4 border-l-4 border-l-blue-500">
+          <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-full">
+            <Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">Total AI Scans</p>
-            <h3 className="text-2xl font-bold text-gray-800">
+            <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">Total AI Scans</p>
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
               {loading ? '…' : totalScans}
             </h3>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4 border-l-4 border-l-green-500">
-          <div className="bg-green-100 p-3 rounded-full">
-            <Recycle className="w-6 h-6 text-green-600" />
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex items-center gap-4 border-l-4 border-l-green-500">
+          <div className="bg-green-100 dark:bg-green-900/40 p-3 rounded-full">
+            <Recycle className="w-6 h-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">Recyclability Rate</p>
-            <h3 className="text-2xl font-bold text-gray-800">{recyclabilityRate}</h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">Recyclability Rate</p>
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-slate-100">{recyclabilityRate}</h3>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4 border-l-4 border-l-indigo-500">
-          <div className="bg-indigo-100 p-3 rounded-full">
-            <AlertTriangle className="w-6 h-6 text-indigo-600" />
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex items-center gap-4 border-l-4 border-l-indigo-500">
+          <div className="bg-indigo-100 dark:bg-indigo-900/40 p-3 rounded-full">
+            <AlertTriangle className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">System Status</p>
-            <h3 className="text-2xl font-bold text-gray-800">Active</h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400 font-medium">System Status</p>
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-slate-100">Active</h3>
           </div>
         </div>
       </div>
@@ -521,37 +521,37 @@ export default function Dashboard() {
       {/* Analytics Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart: Material Distribution */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-              <PieChartIcon className="w-5 h-5 text-gray-500" /> Material Distribution
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-700/50 flex justify-between items-center">
+            <h3 className="font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
+              <PieChartIcon className="w-5 h-5 text-gray-500 dark:text-slate-400" /> Material Distribution
             </h3>
           </div>
           <div className="p-6 h-80 flex justify-center items-center">
             {loading ? (
-              <p className="text-gray-400">Loading chart data…</p>
+              <p className="text-gray-400 dark:text-slate-500">Loading chart data…</p>
             ) : analytics?.total_scans > 0 ? (
               <Pie data={materialData} options={chartOptions} />
             ) : (
-              <p className="text-gray-400">No scan data available yet.</p>
+              <p className="text-gray-400 dark:text-slate-500">No scan data available yet.</p>
             )}
           </div>
         </div>
 
         {/* Bar Chart: Condition Distribution */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-gray-500" /> Physical Condition Trends
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-700/50 flex justify-between items-center">
+            <h3 className="font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-gray-500 dark:text-slate-400" /> Physical Condition Trends
             </h3>
           </div>
           <div className="p-6 h-80 flex justify-center items-center">
             {loading ? (
-              <p className="text-gray-400">Loading chart data…</p>
+              <p className="text-gray-400 dark:text-slate-500">Loading chart data…</p>
             ) : analytics?.total_scans > 0 ? (
               <Bar data={conditionData} options={{ ...chartOptions, maintainAspectRatio: false }} />
             ) : (
-              <p className="text-gray-400">No condition data available yet.</p>
+              <p className="text-gray-400 dark:text-slate-500">No condition data available yet.</p>
             )}
           </div>
         </div>

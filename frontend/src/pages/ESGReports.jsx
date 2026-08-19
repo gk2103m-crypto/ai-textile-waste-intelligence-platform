@@ -274,10 +274,10 @@ export default function ESGReports() {
       {/* ── Page header with Export button ────────────────────────────── */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
             <Leaf className="text-green-600" /> Sustainability &amp; ESG Reports
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
             Module 7, 8 &amp; 9: Real-time Environmental Impact &amp; Weighted Circularity Benchmarking
           </p>
         </div>
@@ -305,7 +305,7 @@ export default function ESGReports() {
 
       {/* ── CRITICAL: This div is the html2canvas capture target ──────── */}
       {/* Everything inside here will appear in the exported PDF.          */}
-      <div id="esg-report-content" className="space-y-6 bg-slate-50 rounded-2xl p-4">
+      <div id="esg-report-content" className="space-y-6 bg-slate-50 dark:bg-slate-950 rounded-2xl p-4">
 
         {error ? (
           <div className="bg-red-50 p-4 rounded-lg flex items-center gap-3 text-red-600">
@@ -318,85 +318,85 @@ export default function ESGReports() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-2">
 
               {/* CO₂ Saved */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                <div className="bg-green-100 p-3 rounded-full mb-4">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col items-center text-center">
+                <div className="bg-green-100 dark:bg-green-900/40 p-3 rounded-full mb-4">
+                  <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
-                <h3 className="text-gray-500 font-medium text-sm">CO₂ Emissions Saved</h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+                <h3 className="text-gray-500 dark:text-slate-400 font-medium text-sm">CO₂ Emissions Saved</h3>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mt-2">
                   {metrics?.total_co2_saved_kg || 0}{' '}
-                  <span className="text-lg text-gray-500 font-normal">kg</span>
+                  <span className="text-lg text-gray-500 dark:text-slate-400 font-normal">kg</span>
                 </p>
-                <span className="text-xs text-green-600 font-medium mt-1">↑ Carbon Footprint Reduced</span>
+                <span className="text-xs text-green-600 dark:text-emerald-400 font-medium mt-1">↑ Carbon Footprint Reduced</span>
               </div>
 
               {/* Water Conservation */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                <div className="bg-blue-100 p-3 rounded-full mb-4">
-                  <Droplets className="w-6 h-6 text-blue-600" />
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col items-center text-center">
+                <div className="bg-blue-100 dark:bg-blue-900/40 p-3 rounded-full mb-4">
+                  <Droplets className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-gray-500 font-medium text-sm">Water Conservation</h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+                <h3 className="text-gray-500 dark:text-slate-400 font-medium text-sm">Water Conservation</h3>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mt-2">
                   {metrics?.total_water_saved_liters || 0}{' '}
-                  <span className="text-lg text-gray-500 font-normal">L</span>
+                  <span className="text-lg text-gray-500 dark:text-slate-400 font-normal">L</span>
                 </p>
-                <span className="text-xs text-blue-600 font-medium mt-1">↑ High Industry Benchmark</span>
+                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-1">↑ High Industry Benchmark</span>
               </div>
 
               {/* Energy Saved */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                <div className="bg-yellow-100 p-3 rounded-full mb-4">
-                  <Zap className="w-6 h-6 text-yellow-600" />
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col items-center text-center">
+                <div className="bg-yellow-100 dark:bg-amber-900/40 p-3 rounded-full mb-4">
+                  <Zap className="w-6 h-6 text-yellow-600 dark:text-amber-400" />
                 </div>
-                <h3 className="text-gray-500 font-medium text-sm">Energy Saved</h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+                <h3 className="text-gray-500 dark:text-slate-400 font-medium text-sm">Energy Saved</h3>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mt-2">
                   {metrics?.total_energy_saved_kwh || 0}{' '}
-                  <span className="text-lg text-gray-500 font-normal">kWh</span>
+                  <span className="text-lg text-gray-500 dark:text-slate-400 font-normal">kWh</span>
                 </p>
-                <span className="text-xs text-yellow-600 font-medium mt-1">↑ Resource Recovery</span>
+                <span className="text-xs text-yellow-600 dark:text-amber-400 font-medium mt-1">↑ Resource Recovery</span>
               </div>
 
               {/* Landfill Diverted */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                <div className="bg-purple-100 p-3 rounded-full mb-4">
-                  <Recycle className="w-6 h-6 text-purple-600" />
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col items-center text-center">
+                <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full mb-4">
+                  <Recycle className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="text-gray-500 font-medium text-sm">Landfill Diverted</h3>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
+                <h3 className="text-gray-500 dark:text-slate-400 font-medium text-sm">Landfill Diverted</h3>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mt-2">
                   {metrics?.total_landfill_diverted_kg || 0}{' '}
-                  <span className="text-lg text-gray-500 font-normal">kg</span>
+                  <span className="text-lg text-gray-500 dark:text-slate-400 font-normal">kg</span>
                 </p>
-                <span className="text-xs text-purple-600 font-medium mt-1">
+                <span className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-1">
                   Rate: {metrics?.waste_diversion_rate || '94.5%'}
                 </span>
               </div>
             </div>
 
             {/* ── Circularity Score Panel ────────────────────────────────── */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700/50">
               <div className="flex items-center gap-2 mb-4">
                 <Award className="text-yellow-600 w-6 h-6" />
-                <h2 className="text-lg font-bold text-gray-800">
+                <h2 className="text-lg font-bold text-gray-800 dark:text-slate-100">
                   Overall Circularity Score (Weighted Model — Module 9)
                 </h2>
               </div>
 
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="text-center md:text-left">
-                  <span className="text-5xl font-extrabold text-green-600">{avgScore}</span>
-                  <span className="text-2xl text-gray-400"> / 100</span>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Category: <strong className="text-green-700">{category}</strong>
+                  <span className="text-5xl font-extrabold text-green-600 dark:text-emerald-400">{avgScore}</span>
+                  <span className="text-2xl text-gray-400 dark:text-slate-500"> / 100</span>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
+                    Category: <strong className="text-green-700 dark:text-emerald-400">{category}</strong>
                   </p>
                 </div>
 
                 <div className="w-full md:w-2/3 space-y-3">
                   <div>
-                    <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                       <span>Material Recyclability (Weight: 35%)</span>
                       <span className="font-semibold">{avgScore}%</span>
                     </div>
-                    <div className="w-full bg-gray-100 h-2 rounded-full">
+                    <div className="w-full bg-gray-100 dark:bg-slate-700 h-2 rounded-full">
                       <div
                         className="bg-green-500 h-2 rounded-full"
                         style={{ width: `${avgScore}%` }}
@@ -404,7 +404,7 @@ export default function ESGReports() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-400 italic pt-2">
+                  <p className="text-xs text-gray-400 dark:text-slate-500 italic pt-2">
                     Detailed sub-metric breakdown (Condition, Reuse Potential, Environmental Benefit,
                     Processing Feasibility) is calculated per-item during AI scanning — average shown
                     above reflects the overall weighted circularity score across all logged inventory.

@@ -110,13 +110,14 @@ export default function Login() {
             </div>
 
             <div
-              onClick={() => fillCredentials('krish123@gmail.com', 'YOUR_PASSWORD')}
+              onClick={() => fillCredentials('krish123@gmail.com', 'test123')}
               className="p-2 bg-slate-800 rounded border border-slate-700 hover:border-emerald-500/50 cursor-pointer transition flex justify-between items-center"
             >
               <div>
                 <span className="text-slate-400 block text-[10px]">MANUFACTURER</span>
                 <span className="text-white">krish123@gmail.com</span>
               </div>
+              <span className="text-emerald-400 font-bold">test123</span>
             </div>
 
             <div

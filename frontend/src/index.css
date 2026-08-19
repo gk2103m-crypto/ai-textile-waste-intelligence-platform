@@ -1,8 +1,22 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+html, body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  background-color: #f3f4f6;
+  background-color: #f8fafc;
+  color: #0f172a;
 }
+
+.dark body, html.dark, :root.dark {
+  background-color: #020617;
+  color: #f8fafc;
+}
+
 
 /* ─── Module 11: Toast Notification Animations ───────────────────────────── */
 

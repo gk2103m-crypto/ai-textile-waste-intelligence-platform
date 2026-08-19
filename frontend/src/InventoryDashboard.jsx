@@ -149,20 +149,34 @@ const InventoryDashboard = () => {
     }
   };
 
+  const getConditionBadgeClass = (condition) => {
+    const cond = (condition || '').toLowerCase();
+    if (cond.includes('good')) {
+      return 'px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md text-xs font-medium';
+    }
+    if (cond.includes('stained') || cond.includes('flawed')) {
+      return 'px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md text-xs font-medium';
+    }
+    if (cond.includes('torn') || cond.includes('degraded')) {
+      return 'px-2.5 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-md text-xs font-medium';
+    }
+    return 'px-2.5 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-md text-xs font-medium';
+  };
+
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded shadow">
-        <h1 className="text-2xl font-bold text-gray-800">My Inventory Dashboard</h1>
+    <div className="p-4 space-y-6">
+      <div className="flex justify-between items-center bg-slate-800 p-5 rounded-xl border border-slate-700/60 shadow-lg">
+        <h1 className="text-2xl font-bold text-slate-100">My Inventory Dashboard</h1>
         <div className="space-x-3">
           <button
             onClick={() => { setShowAiModal(true); setAiResult(null); setSelectedFile(null); }}
-            className="bg-purple-600 text-white px-5 py-2 rounded shadow hover:bg-purple-700 transition font-medium"
+            className="bg-purple-600 text-white px-5 py-2 rounded-lg shadow hover:bg-purple-500 transition font-medium"
           >
             📸 AI Image Scanner
           </button>
           <button
             onClick={() => { setShowForm(!showForm); setEditItem(null); setFormData({ fabric_type: '', source: 'Pre-consumer', quantity_kg: '', color: '', condition: 'Good' }); }}
-            className="bg-blue-600 text-white px-5 py-2 rounded shadow hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-500 transition font-medium"
           >
             {showForm ? 'Cancel' : '+ Add Inventory'}
           </button>
@@ -170,66 +184,86 @@ const InventoryDashboard = () => {
       </div>
 
       {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md mb-6 border-t-4 border-blue-600">
-          <h3 className="font-semibold mb-4 text-gray-700">{editItem ? `Edit Batch #${editItem.batch_id}` : 'Add New Inventory'}</h3>
+        <div className="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 border-t-4 border-t-blue-500">
+          <h3 className="font-semibold mb-4 text-slate-200">{editItem ? `Edit Batch #${editItem.batch_id}` : 'Add New Inventory'}</h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-            <input type="text" placeholder="Fabric Type (e.g. Cotton)" required className="border p-2 rounded" value={formData.fabric_type} onChange={e => setFormData({...formData, fabric_type: e.target.value})} />
-            <input type="number" placeholder="Quantity (kg)" required className="border p-2 rounded" value={formData.quantity_kg} onChange={e => setFormData({...formData, quantity_kg: e.target.value})} />
-            <input type="text" placeholder="Color" required className="border p-2 rounded" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
-            <select className="border p-2 rounded" value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})}>
-              <option>Pre-consumer</option><option>Post-consumer</option><option>Manufacturing Scrap</option>
+            <input type="text" placeholder="Fabric Type (e.g. Cotton)" required className="bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-400 p-2.5 rounded-lg focus:outline-none focus:border-blue-500" value={formData.fabric_type} onChange={e => setFormData({...formData, fabric_type: e.target.value})} />
+            <input type="number" placeholder="Quantity (kg)" required className="bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-400 p-2.5 rounded-lg focus:outline-none focus:border-blue-500" value={formData.quantity_kg} onChange={e => setFormData({...formData, quantity_kg: e.target.value})} />
+            <input type="text" placeholder="Color" required className="bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-400 p-2.5 rounded-lg focus:outline-none focus:border-blue-500" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
+            <select className="bg-slate-900 border border-slate-700 text-slate-200 p-2.5 rounded-lg focus:outline-none focus:border-blue-500" value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})}>
+              <option className="bg-slate-900 text-slate-200">Pre-consumer</option>
+              <option className="bg-slate-900 text-slate-200">Post-consumer</option>
+              <option className="bg-slate-900 text-slate-200">Manufacturing Scrap</option>
             </select>
-            <select className="border p-2 rounded" value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})}>
-              <option>Good</option><option>Torn</option><option>Stained</option>
+            <select className="bg-slate-900 border border-slate-700 text-slate-200 p-2.5 rounded-lg focus:outline-none focus:border-blue-500" value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})}>
+              <option className="bg-slate-900 text-slate-200">Good</option>
+              <option className="bg-slate-900 text-slate-200">Torn</option>
+              <option className="bg-slate-900 text-slate-200">Stained</option>
             </select>
-            <button type="submit" className="col-span-2 bg-green-600 text-white p-2 rounded font-bold hover:bg-green-700">
+            <button type="submit" className="col-span-2 bg-emerald-600 text-white p-2.5 rounded-lg font-bold hover:bg-emerald-500 transition">
               {editItem ? 'Update Item' : 'Save to Database'}
             </button>
           </form>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-slate-800 rounded-xl shadow-lg border border-slate-700 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-800 text-white">
-              <th className="p-4">ID</th><th className="p-4">Fabric Type</th><th className="p-4">Color</th><th className="p-4">Quantity (kg)</th><th className="p-4">Condition</th><th className="p-4">Actions</th>
+            <tr className="bg-slate-900 text-slate-200 border-b border-slate-700">
+              <th className="p-4">ID</th>
+              <th className="p-4">Fabric Type</th>
+              <th className="p-4">Color</th>
+              <th className="p-4">Quantity (kg)</th>
+              <th className="p-4">Condition</th>
+              <th className="p-4">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {inventory.length === 0 ? <tr><td colSpan="6" className="p-4 text-center text-gray-500">No data found. Add some inventory!</td></tr> :
+          <tbody className="bg-slate-900 text-slate-200">
+            {inventory.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-4 text-center text-slate-400">
+                  No data found. Add some inventory!
+                </td>
+              </tr>
+            ) : (
               inventory.map((item) => (
-                <tr key={item.batch_id} className="border-b">
-                  <td className="p-4">#{item.batch_id}</td>
-                  <td className="p-4 font-semibold">{item.fabric_type}</td>
-                  <td className="p-4">{item.color}</td>
-                  <td className="p-4">{item.quantity_kg}</td>
-                  <td className="p-4"><span className="px-2 py-1 bg-gray-200 rounded text-sm">{item.condition}</span></td>
+                <tr key={item.batch_id} className="border-b border-slate-700 hover:bg-slate-800/50 transition-colors">
+                  <td className="p-4 text-slate-300">#{item.batch_id}</td>
+                  <td className="p-4 font-semibold text-slate-100">{item.fabric_type}</td>
+                  <td className="p-4 text-slate-300">{item.color}</td>
+                  <td className="p-4 text-slate-300">{item.quantity_kg}</td>
+                  <td className="p-4">
+                    <span className={getConditionBadgeClass(item.condition)}>
+                      {item.condition}
+                    </span>
+                  </td>
                   <td className="p-4 space-x-3">
-                    <button onClick={() => handleView(item.batch_id)} className="text-blue-600 font-medium">View</button>
-                    <button onClick={() => handleEdit(item)} className="text-green-600 font-medium">Edit</button>
-                    <button onClick={() => handleDelete(item.batch_id)} className="text-red-600 font-medium">Delete</button>
+                    <button onClick={() => handleView(item.batch_id)} className="text-blue-400 hover:text-blue-300 font-medium transition-colors">View</button>
+                    <button onClick={() => handleEdit(item)} className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">Edit</button>
+                    <button onClick={() => handleDelete(item.batch_id)} className="text-rose-400 hover:text-rose-300 font-medium transition-colors">Delete</button>
                   </td>
                 </tr>
-            ))}
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
       {/* View Modal */}
       {viewItem && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold mb-4 text-gray-800">Inventory Details — #{viewItem.batch_id}</h3>
-            <div className="space-y-2 text-sm text-gray-700">
-              <p><span className="font-medium">Fabric Type:</span> {viewItem.fabric_type}</p>
-              <p><span className="font-medium">Source:</span> {viewItem.source}</p>
-              <p><span className="font-medium">Quantity:</span> {viewItem.quantity_kg} kg</p>
-              <p><span className="font-medium">Color:</span> {viewItem.color}</p>
-              <p><span className="font-medium">Condition:</span> {viewItem.condition}</p>
-              <p><span className="font-medium">Collected On:</span> {viewItem.collection_date}</p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4 text-slate-100">Inventory Details — #{viewItem.batch_id}</h3>
+            <div className="space-y-2 text-sm text-slate-300">
+              <p><span className="font-medium text-slate-200">Fabric Type:</span> {viewItem.fabric_type}</p>
+              <p><span className="font-medium text-slate-200">Source:</span> {viewItem.source}</p>
+              <p><span className="font-medium text-slate-200">Quantity:</span> {viewItem.quantity_kg} kg</p>
+              <p><span className="font-medium text-slate-200">Color:</span> {viewItem.color}</p>
+              <p><span className="font-medium text-slate-200">Condition:</span> {viewItem.condition}</p>
+              <p><span className="font-medium text-slate-200">Collected On:</span> {viewItem.collection_date}</p>
             </div>
-            <button onClick={() => setViewItem(null)} className="mt-5 w-full bg-gray-800 text-white py-2 rounded-lg">Close</button>
+            <button onClick={() => setViewItem(null)} className="mt-5 w-full bg-slate-700 text-slate-100 py-2 rounded-lg hover:bg-slate-600 transition font-medium">Close</button>
           </div>
         </div>
       )}
@@ -238,9 +272,9 @@ const InventoryDashboard = () => {
       {/* AI IMAGE SCANNER MODAL */}
       {/* ========================================== */}
       {showAiModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg">
-            <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-lg">
+            <h3 className="text-xl font-bold mb-4 text-slate-100 flex items-center gap-2">
               📸 AI Textile Waste Scanner
             </h3>
             
@@ -248,47 +282,47 @@ const InventoryDashboard = () => {
               type="file" 
               accept="image/*"
               onChange={(e) => setSelectedFile(e.target.files[0])}
-              className="border p-3 w-full rounded mb-4 text-sm"
+              className="bg-slate-900 border border-slate-700 text-slate-200 p-3 w-full rounded-lg mb-4 text-sm focus:outline-none focus:border-purple-500"
             />
 
             <button 
               onClick={handleAiScan}
               disabled={aiLoading}
-              className="w-full bg-purple-600 text-white py-2 rounded font-bold hover:bg-purple-700 disabled:bg-purple-400"
+              className="w-full bg-purple-600 text-white py-2.5 rounded-lg font-bold hover:bg-purple-500 disabled:bg-purple-900/50 disabled:text-purple-400 transition"
             >
               {aiLoading ? '🧠 Analyzing AI Models...' : '🚀 Scan with AI'}
             </button>
 
             {/* AI RESULT DISPLAY CARDS (WITH MULTI-KEY FALLBACK) */}
             {aiResult && (
-              <div className="mt-6 bg-purple-50 p-4 rounded-lg border border-purple-200">
-                <h4 className="font-bold text-purple-900 mb-3 text-center border-b pb-1">AI Scan Results</h4>
+              <div className="mt-6 bg-slate-900/90 p-4 rounded-xl border border-purple-500/30">
+                <h4 className="font-bold text-purple-300 mb-3 text-center border-b border-slate-700/80 pb-2">AI Scan Results</h4>
                 
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="bg-white p-2 rounded shadow-sm">
-                    <span className="font-bold text-gray-600 block">Fabric Type:</span>
-                    <span className="text-lg font-semibold text-blue-700">
+                  <div className="bg-slate-800 border border-slate-700/60 p-3 rounded-lg shadow-sm">
+                    <span className="font-bold text-slate-400 block text-xs mb-1">Fabric Type:</span>
+                    <span className="text-base font-semibold text-blue-400">
                       {aiResult.material || aiResult.fabric_type || aiResult.fabric || aiResult.detected_material || "Unknown"}
                     </span>
                   </div>
 
-                  <div className="bg-white p-2 rounded shadow-sm">
-                    <span className="font-bold text-gray-600 block">Condition / Defect:</span>
-                    <span className="text-lg font-semibold text-red-600">
+                  <div className="bg-slate-800 border border-slate-700/60 p-3 rounded-lg shadow-sm">
+                    <span className="font-bold text-slate-400 block text-xs mb-1">Condition / Defect:</span>
+                    <span className="text-base font-semibold text-rose-400">
                       {aiResult.detected_defect || aiResult.condition || aiResult.defect || aiResult.damage_type || "Unknown"}
                     </span>
                   </div>
 
-                  <div className="bg-white p-2 rounded shadow-sm col-span-2">
-                    <span className="font-bold text-gray-600 block">Circularity Score:</span>
-                    <span className="text-lg font-bold text-green-700">
+                  <div className="bg-slate-800 border border-slate-700/60 p-3 rounded-lg shadow-sm col-span-2">
+                    <span className="font-bold text-slate-400 block text-xs mb-1">Circularity Score:</span>
+                    <span className="text-base font-bold text-emerald-400">
                       {aiResult.circularity_score || aiResult.score || "75"}/100
                     </span>
                   </div>
 
-                  <div className="bg-white p-2 rounded shadow-sm col-span-2">
-                    <span className="font-bold text-gray-600 block">Recommended Strategy:</span>
-                    <span className="font-medium text-purple-800">
+                  <div className="bg-slate-800 border border-slate-700/60 p-3 rounded-lg shadow-sm col-span-2">
+                    <span className="font-bold text-slate-400 block text-xs mb-1">Recommended Strategy:</span>
+                    <span className="font-medium text-purple-300">
                       {aiResult.recommended_strategy || aiResult.strategy || aiResult.recycling_strategy || "Mechanical Recycling"}
                     </span>
                   </div>
@@ -298,7 +332,7 @@ const InventoryDashboard = () => {
 
             <button 
               onClick={() => setShowAiModal(false)} 
-              className="mt-5 w-full bg-gray-800 text-white py-2 rounded-lg"
+              className="mt-5 w-full bg-slate-700 text-slate-200 py-2 rounded-lg hover:bg-slate-600 transition font-medium"
             >
               Close Scanner
             </button>
