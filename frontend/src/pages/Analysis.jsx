@@ -44,7 +44,7 @@ const getMaterialInfo = (material) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // SVG Circular Gauge — used for Confidence Score and Circularity Score
 // ─────────────────────────────────────────────────────────────────────────────
-function CircleGauge({ value = 0, max = 100, size = 140, strokeWidth = 12, color = '#10b981', trackColor = '#334155', centerLabel = '', subLabel = '' }) {
+function CircleGauge({ value = 0, max = 100, size = 140, strokeWidth = 12, color = '#10b981', trackColor, centerLabel = '', subLabel = '' }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const clampedValue = Math.min(Number(value) || 0, max);
@@ -55,7 +55,7 @@ function CircleGauge({ value = 0, max = 100, size = 140, strokeWidth = 12, color
   return (
     <svg width={size} height={size} style={{ overflow: 'visible' }}>
       {/* Track ring */}
-      <circle cx={cx} cy={cy} r={radius} fill="none" stroke={trackColor} strokeWidth={strokeWidth} />
+      <circle cx={cx} cy={cy} r={radius} fill="none" stroke={trackColor || undefined} className={trackColor ? '' : 'stroke-slate-200 dark:stroke-slate-700'} strokeWidth={strokeWidth} />
       {/* Progress ring */}
       <circle
         cx={cx} cy={cy} r={radius} fill="none"
@@ -68,13 +68,15 @@ function CircleGauge({ value = 0, max = 100, size = 140, strokeWidth = 12, color
       />
       {/* Center value */}
       <text x="50%" y={subLabel ? '44%' : '50%'} dominantBaseline="middle" textAnchor="middle"
-        style={{ fontSize: size >= 130 ? '1.4rem' : '1.1rem', fontWeight: 800, fill: '#f8fafc', fontFamily: 'inherit' }}>
+        className="fill-slate-900 dark:fill-slate-100"
+        style={{ fontSize: size >= 130 ? '1.4rem' : '1.1rem', fontWeight: 800, fontFamily: 'inherit' }}>
         {centerLabel || clampedValue}
       </text>
       {/* Sub label */}
       {subLabel && (
         <text x="50%" y="62%" dominantBaseline="middle" textAnchor="middle"
-          style={{ fontSize: '0.62rem', fill: '#94a3b8', fontWeight: 600, fontFamily: 'inherit', letterSpacing: '0.03em' }}>
+          className="fill-slate-500 dark:fill-slate-400"
+          style={{ fontSize: '0.62rem', fontWeight: 600, fontFamily: 'inherit', letterSpacing: '0.03em' }}>
           {subLabel}
         </text>
       )}
@@ -91,13 +93,13 @@ function BreakdownBar({ label, weight, achieved, color = '#10b981' }) {
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between items-center">
-        <span className="text-xs text-slate-300 font-medium">{label}</span>
+        <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">{label}</span>
         <div className="flex items-center gap-1">
-          <span className="text-xs font-bold text-slate-100">{Number(achieved).toFixed(1)}</span>
-          <span className="text-xs text-slate-400">/ {weight}</span>
+          <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{Number(achieved).toFixed(1)}</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">/ {weight}</span>
         </div>
       </div>
-      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+      <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full"
           style={{
@@ -116,7 +118,7 @@ function BreakdownBar({ label, weight, achieved, color = '#10b981' }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function Pill({ label }) {
   return (
-    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
       {label}
     </span>
   );
@@ -134,14 +136,14 @@ function BatchResultCard({ item, index }) {
   const scoreColor =
     score >= 85 ? '#10b981' : score >= 70 ? '#3b82f6' : score >= 55 ? '#f59e0b' : '#ef4444';
   const confColor =
-    confidence >= 85 ? 'bg-emerald-500/15 text-emerald-400' :
-    confidence >= 65 ? 'bg-amber-500/15 text-amber-400' :
-                       'bg-rose-500/15 text-rose-400';
+    confidence >= 85 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' :
+    confidence >= 65 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' :
+                       'bg-rose-500/15 text-rose-600 dark:text-rose-400';
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
       {/* Thumbnail */}
-      <div className="relative h-36 bg-slate-900 shrink-0">
+      <div className="relative h-36 bg-slate-100 dark:bg-slate-900 shrink-0">
         <img
           src={item.previewUrl}
           alt={item.fileName}
@@ -173,10 +175,10 @@ function BatchResultCard({ item, index }) {
           <>
             {/* Material name */}
             <div>
-              <p className="text-sm font-extrabold text-slate-100 truncate">
+              <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate">
                 {item.result.detected_material || 'Unknown'}
               </p>
-              <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.fileName}</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{item.fileName}</p>
             </div>
 
             {/* Confidence badge */}
@@ -188,10 +190,10 @@ function BatchResultCard({ item, index }) {
             {/* Circularity score mini bar */}
             <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] text-slate-400 font-medium">Circularity</span>
-                <span className="text-[10px] font-extrabold text-slate-200">{score.toFixed(1)}/100</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Circularity</span>
+                <span className="text-[10px] font-extrabold text-slate-800 dark:text-slate-200">{score.toFixed(1)}/100</span>
               </div>
-              <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-slate-200 dark:bg-slate-900 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full"
                   style={{ width: `${score}%`, backgroundColor: scoreColor, transition: 'width 1s ease' }}
@@ -200,21 +202,21 @@ function BatchResultCard({ item, index }) {
             </div>
 
             {/* Strategy chip */}
-            <p className="text-[10px] text-slate-400 leading-relaxed truncate">
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed truncate">
               ♻ {item.result.recommended_strategy || 'Mechanical Recycling'}
             </p>
           </>
         ) : item.error ? (
           <div className="space-y-1">
-            <p className="text-xs font-bold text-rose-400">Analysis Failed</p>
-            <p className="text-[10px] text-slate-400 truncate">{item.fileName}</p>
-            <p className="text-[10px] text-rose-300">{item.error}</p>
+            <p className="text-xs font-bold text-rose-500 dark:text-rose-400">Analysis Failed</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{item.fileName}</p>
+            <p className="text-[10px] text-rose-500 dark:text-rose-300">{item.error}</p>
           </div>
         ) : (
           /* Still queued */
           <div className="flex items-center gap-2 py-2">
             <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-            <span className="text-xs text-slate-400">Queued…</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Queued…</span>
           </div>
         )}
       </div>
@@ -337,18 +339,18 @@ function BatchAnalysis({ addToast }) {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-emerald-500" />
             Batch Textile Analysis
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
             Upload multiple images — each is classified by the AI engine sequentially
           </p>
         </div>
         {batchItems.length > 0 && !batchLoading && (
           <button
             onClick={handleClear}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 px-3 py-1.5 rounded-lg hover:bg-slate-800 border border-slate-700 transition-all"
+            className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all"
           >
             <X className="w-3.5 h-3.5" /> Clear All
           </button>
@@ -366,8 +368,8 @@ function BatchAnalysis({ addToast }) {
             isDragging
               ? 'border-emerald-500 bg-emerald-500/10 scale-[1.01]'
               : batchFiles.length > 0
-              ? 'border-emerald-500/40 bg-slate-800/80'
-              : 'border-slate-700 bg-slate-800/40 hover:border-emerald-500/60 hover:bg-slate-800'
+              ? 'border-emerald-500/40 bg-slate-50 dark:bg-slate-800/80'
+              : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 hover:border-emerald-500/60 hover:bg-slate-100 dark:hover:bg-slate-800'
           }
           ${batchLoading ? 'pointer-events-none opacity-60' : ''}
         `}
@@ -384,23 +386,23 @@ function BatchAnalysis({ addToast }) {
         {batchFiles.length > 0 ? (
           <div className="space-y-2">
             <div className="w-12 h-12 bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto">
-              <CheckCircle className="w-6 h-6 text-emerald-400" />
+              <CheckCircle className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
             </div>
-            <p className="text-sm font-bold text-emerald-400">
+            <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
               {batchFiles.length} image{batchFiles.length > 1 ? 's' : ''} selected
             </p>
-            <p className="text-xs text-slate-400">Drop more to add, or click to replace</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">Drop more to add, or click to replace</p>
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto border border-slate-700">
-              <UploadCloud className="w-7 h-7 text-slate-400" />
+            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto border border-slate-200 dark:border-slate-700">
+              <UploadCloud className="w-7 h-7 text-slate-500 dark:text-slate-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-300">Drop multiple textile images here</p>
-              <p className="text-xs text-slate-400 mt-1">or click to browse — JPG, PNG, WebP supported</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-300">Drop multiple textile images here</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">or click to browse — JPG, PNG, WebP supported</p>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-xs text-slate-300 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
               <Layers className="w-3.5 h-3.5" /> Select up to 20 images at once
             </span>
           </div>
@@ -411,10 +413,10 @@ function BatchAnalysis({ addToast }) {
       {batchFiles.length > 0 && !batchLoading && (
         <div className="flex flex-wrap gap-2">
           {batchFiles.map((f, i) => (
-            <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 rounded-lg text-[10px] text-slate-300 font-medium border border-slate-700 max-w-[180px]">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+            <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[10px] text-slate-700 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700 max-w-[180px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shrink-0" />
               <span className="truncate">{f.name}</span>
-              <span className="text-slate-400 shrink-0">· {(f.size / 1024).toFixed(0)}KB</span>
+              <span className="text-slate-500 dark:text-slate-400 shrink-0">· {(f.size / 1024).toFixed(0)}KB</span>
             </span>
           ))}
         </div>
@@ -427,7 +429,7 @@ function BatchAnalysis({ addToast }) {
           disabled={batchLoading}
           className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all ${
             batchLoading
-              ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+              ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed'
               : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-900/30'
           }`}
         >
@@ -443,18 +445,18 @@ function BatchAnalysis({ addToast }) {
       {batchLoading && progress.total > 0 && (
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-semibold text-slate-200">
+            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
               Processing {progress.current} of {progress.total} image{progress.total > 1 ? 's' : ''}…
             </span>
-            <span className="text-sm font-bold text-emerald-400">{progressPct}%</span>
+            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{progressPct}%</span>
           </div>
-          <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+          <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
               className="h-full bg-emerald-500 rounded-full"
               style={{ width: `${progressPct}%`, transition: 'width 0.4s ease' }}
             />
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {progress.total - progress.current} remaining · Each image is sent to the AI engine sequentially
           </p>
         </div>
@@ -464,14 +466,14 @@ function BatchAnalysis({ addToast }) {
       {batchItems.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
               Results
               {batchLoading && (
-                <span className="ml-2 text-emerald-400 normal-case font-normal">· Live updating…</span>
+                <span className="ml-2 text-emerald-600 dark:text-emerald-400 normal-case font-normal">· Live updating…</span>
               )}
             </p>
             {!batchLoading && batchItems.filter(i => i.result).length > 0 && (
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
                 {batchItems.filter(i => i.result).length} / {batchItems.length} classified
               </span>
             )}
@@ -651,18 +653,18 @@ const Analysis = () => {
       {/* ═══ PAGE HEADER ══════════════════════════════════════════════════════ */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-emerald-500" />
             AI Fabric Prediction Engine
           </h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
             Module 3 &amp; 4 — Computer Vision · Material Classification · Waste Scoring
           </p>
         </div>
         {analysisResult && (
           <button
             onClick={downloadPDFReport}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-xl border border-slate-700 shadow-sm transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors"
           >
             <Download className="w-4 h-4" /> Export PDF Report
           </button>
@@ -670,7 +672,7 @@ const Analysis = () => {
       </div>
 
       {/* ═══ TABS ═════════════════════════════════════════════════════════════ */}
-      <div className="flex gap-1 p-1 bg-slate-900 border border-slate-700/60 rounded-xl w-fit">
+      <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/60 rounded-xl w-fit">
         {[
           { id: 'single', label: 'Single Image',   Icon: ImagePlus },
           { id: 'batch',  label: 'Batch Analysis', Icon: BarChart3 },
@@ -680,8 +682,8 @@ const Analysis = () => {
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
               activeTab === id
-                ? 'bg-slate-700 text-emerald-400 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm border border-slate-200/60 dark:border-transparent'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/60'
             }`}
           >
             <Icon className="w-4 h-4" />
@@ -692,7 +694,7 @@ const Analysis = () => {
 
       {/* ═══ BATCH TAB ════════════════════════════════════════════════════════ */}
       {activeTab === 'batch' && (
-        <div className="bg-slate-900 rounded-2xl border border-slate-700/50 shadow-md">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-md">
           <BatchAnalysis addToast={addToast} />
         </div>
       )}
@@ -705,10 +707,10 @@ const Analysis = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
             {/* LEFT: Image Upload Card */}
-            <div className="bg-slate-900 rounded-2xl border border-slate-700/50 shadow-md p-6 flex flex-col gap-5">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-md p-6 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-slate-100">Textile Image Upload</h2>
-                <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full font-semibold border border-emerald-500/20">
+                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Textile Image Upload</h2>
+                <span className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-full font-semibold border border-emerald-500/20">
                   JPG · PNG · WebP
                 </span>
               </div>
@@ -719,7 +721,7 @@ const Analysis = () => {
                 className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed cursor-pointer transition-all duration-200 min-h-52
                   ${previewUrl
                     ? 'border-emerald-500/50 bg-emerald-500/10'
-                    : 'border-slate-700 bg-slate-800/40 hover:border-emerald-500/60 hover:bg-slate-800/80'
+                    : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 hover:border-emerald-500/60 hover:bg-slate-100 dark:hover:bg-slate-800/80'
                   }`}
               >
                 {previewUrl ? (
@@ -730,12 +732,12 @@ const Analysis = () => {
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-3 py-10 px-6 text-center">
-                    <div className="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-700">
-                      <UploadCloud className="w-7 h-7 text-slate-400" />
+                    <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                      <UploadCloud className="w-7 h-7 text-slate-500 dark:text-slate-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-300">Drop your textile image here</p>
-                      <p className="text-xs text-slate-400 mt-1">or click to browse files</p>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Drop your textile image here</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">or click to browse files</p>
                     </div>
                   </div>
                 )}
@@ -751,10 +753,10 @@ const Analysis = () => {
 
               {/* File name chip */}
               {selectedFile && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-slate-800 rounded-lg border border-slate-700">
-                  <Layers className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className="text-xs text-slate-300 truncate flex-1 font-medium">{selectedFile.name}</span>
-                  <span className="text-xs text-slate-400 shrink-0">
+                <div className="flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <Layers className="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <span className="text-xs text-slate-700 dark:text-slate-300 truncate flex-1 font-medium">{selectedFile.name}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">
                     {(selectedFile.size / 1024).toFixed(0)} KB
                   </span>
                 </div>
@@ -767,7 +769,7 @@ const Analysis = () => {
                   disabled={!selectedFile || loading}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${
                     !selectedFile || loading
-                      ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed'
                       : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30'
                   }`}
                 >
@@ -779,7 +781,7 @@ const Analysis = () => {
                 <button
                   onClick={handleReset}
                   disabled={!selectedFile && !analysisResult}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 text-sm font-semibold hover:bg-slate-700 hover:text-slate-100 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <RotateCcw className="w-4 h-4" /> Reset
                 </button>
@@ -787,11 +789,11 @@ const Analysis = () => {
             </div>
 
             {/* RIGHT: Prediction Result Card */}
-            <div className="bg-slate-900 rounded-2xl border border-slate-700/50 shadow-md p-6 flex flex-col gap-5">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-md p-6 flex flex-col gap-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-slate-100">Prediction Result</h2>
+                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Prediction Result</h2>
                 {processingTime && (
-                  <span className="flex items-center gap-1.5 text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+                  <span className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                     <Clock className="w-3.5 h-3.5" /> {processingTime}s processing time
                   </span>
                 )}
@@ -801,41 +803,40 @@ const Analysis = () => {
                 <div className="space-y-5">
 
                   {/* Predicted Material banner */}
-                  <div className="p-4 bg-slate-800/80 rounded-xl border border-emerald-500/30">
-                    <p className="text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-1">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-emerald-500/30">
+                    <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">
                       Predicted Material
                     </p>
-                    <p className="text-2xl font-extrabold text-white">
+                    <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
                       {analysisResult.detected_material || 'Unknown'}
                     </p>
-                    <p className="text-sm text-slate-400 mt-0.5">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                       {matInfo?.fabricClass} — {matInfo?.materialType}
                     </p>
                   </div>
 
                   {/* Confidence Score circular gauge */}
-                  <div className="flex items-center gap-6 p-4 bg-slate-800/80 rounded-xl border border-slate-700">
+                  <div className="flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
                     <CircleGauge
                       value={confidence.toFixed(1)}
                       max={100}
                       size={110}
                       strokeWidth={11}
                       color={confidence >= 85 ? '#10b981' : confidence >= 65 ? '#f59e0b' : '#ef4444'}
-                      trackColor="#334155"
                       subLabel={confidenceLabel}
                     />
                     <div className="flex-1 space-y-2">
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                         Confidence Score
                       </p>
-                      <p className="text-3xl font-extrabold text-white">
+                      <p className="text-3xl font-extrabold text-slate-900 dark:text-white">
                         {confidence.toFixed(2)}
-                        <span className="text-lg text-slate-400 font-medium">%</span>
+                        <span className="text-lg text-slate-500 dark:text-slate-400 font-medium">%</span>
                       </p>
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                        confidence >= 85 ? 'bg-emerald-500/15 text-emerald-400' :
-                        confidence >= 65 ? 'bg-amber-500/15 text-amber-400'    :
-                                           'bg-rose-500/15 text-rose-400'
+                        confidence >= 85 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' :
+                        confidence >= 65 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'    :
+                                           'bg-rose-500/15 text-rose-600 dark:text-rose-400'
                       }`}>
                         <span className="w-1.5 h-1.5 rounded-full bg-current inline-block" />
                         {confidenceLabel}
@@ -845,13 +846,13 @@ const Analysis = () => {
 
                   {/* Defect Detection row */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
-                      <p className="text-xs text-slate-400 font-medium mb-1">Defect Detection</p>
-                      <p className="text-sm font-bold text-slate-200">{defectLabel}</p>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Defect Detection</p>
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{defectLabel}</p>
                     </div>
-                    <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
-                      <p className="text-xs text-slate-400 font-medium mb-1">Condition Score</p>
-                      <p className="text-sm font-bold text-slate-200">{defectPct} confidence</p>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Condition Score</p>
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{defectPct} confidence</p>
                     </div>
                   </div>
 
@@ -859,12 +860,12 @@ const Analysis = () => {
               ) : (
                 /* Empty state */
                 <div className="flex-1 flex flex-col items-center justify-center text-center py-12 gap-4">
-                  <div className="w-16 h-16 bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center">
-                    <FlaskConical className="w-8 h-8 text-slate-400" />
+                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-center justify-center">
+                    <FlaskConical className="w-8 h-8 text-slate-400 dark:text-slate-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-300">No analysis yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Upload a textile image and click Analyze Fabric</p>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No analysis yet</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Upload a textile image and click Analyze Fabric</p>
                   </div>
                 </div>
               )}
@@ -873,21 +874,21 @@ const Analysis = () => {
 
           {/* ── SECTION 2: Material Information Card ── */}
           {analysisResult && matInfo && (
-            <div className="bg-slate-900 rounded-2xl border border-slate-700/50 shadow-md p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-md p-6">
               <div className="flex items-start justify-between mb-5">
                 <div>
-                  <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                  <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <Leaf className="w-5 h-5 text-emerald-500" />
                     Material Information
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">AI-enriched material profile from knowledge base</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">AI-enriched material profile from knowledge base</p>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-end">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700">
                     <span className="text-base">{matInfo.icon}</span>
                     {matInfo.fabricClass}
                   </span>
-                  <span className="inline-flex items-center px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs font-semibold border border-emerald-500/20">
+                  <span className="inline-flex items-center px-3 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-semibold border border-emerald-500/20">
                     {matInfo.materialType}
                   </span>
                 </div>
@@ -896,12 +897,12 @@ const Analysis = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Description */}
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Description</p>
-                  <p className="text-sm text-slate-300 leading-relaxed">{matInfo.description}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Description</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{matInfo.description}</p>
                 </div>
                 {/* Common Uses */}
                 <div className="space-y-3">
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Common Uses</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Common Uses</p>
                   <div className="flex flex-wrap gap-2">
                     {matInfo.commonUses.map((use) => (
                       <Pill key={use} label={use} />
@@ -917,11 +918,11 @@ const Analysis = () => {
             <div className="space-y-5">
 
               {/* Score Card — 3 columns */}
-              <div className="bg-slate-900 rounded-2xl border border-slate-700/50 shadow-md p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-md p-6">
                 <div className="flex items-center gap-2 mb-6">
                   <Award className="w-5 h-5 text-amber-500" />
-                  <h2 className="text-base font-bold text-slate-100">Circular Economy Score</h2>
-                  <span className="ml-auto text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+                  <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Circular Economy Score</h2>
+                  <span className="ml-auto text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                     Module 9 — Weighted Scoring Model
                   </span>
                 </div>
@@ -941,26 +942,25 @@ const Analysis = () => {
                         circScore >= 55 ? '#f59e0b' :
                                          '#ef4444'
                       }
-                      trackColor="#334155"
                       subLabel="/ 100"
                     />
                     <div className="text-center space-y-1">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
-                        circScore >= 85 ? 'bg-emerald-500/15 text-emerald-400' :
-                        circScore >= 70 ? 'bg-blue-500/15 text-blue-400'    :
-                        circScore >= 55 ? 'bg-amber-500/15 text-amber-400'  :
-                                         'bg-rose-500/15 text-rose-400'
+                        circScore >= 85 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' :
+                        circScore >= 70 ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400'    :
+                        circScore >= 55 ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'  :
+                                         'bg-rose-500/15 text-rose-600 dark:text-rose-400'
                       }`}>
                         <span className="w-1.5 h-1.5 rounded-full bg-current" />
                         {circCategory || 'Calculating...'}
                       </span>
-                      <p className="text-xs text-slate-400">Overall Circularity</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Overall Circularity</p>
                     </div>
                   </div>
 
                   {/* CENTER: Score Breakdown Bars */}
                   <div className="space-y-4">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Score Breakdown</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Score Breakdown</p>
                     {barsData.map((b) => (
                       <BreakdownBar
                         key={b.label}
@@ -970,17 +970,17 @@ const Analysis = () => {
                         color={b.color}
                       />
                     ))}
-                    <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
-                      <span className="text-xs text-slate-400 font-medium">Total Score</span>
-                      <span className="text-sm font-extrabold text-slate-100">{circScore.toFixed(2)} / 100</span>
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Score</span>
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-slate-100">{circScore.toFixed(2)} / 100</span>
                     </div>
                   </div>
 
                   {/* RIGHT: Score Calculation Explanation */}
                   <div className="space-y-4">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Score Calculation</p>
-                    <div className="space-y-3 text-xs text-slate-400 leading-relaxed bg-slate-800/80 rounded-xl p-4 border border-slate-700">
-                      <p className="font-semibold text-slate-200">Weighted Formula:</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Score Calculation</p>
+                    <div className="space-y-3 text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-800/80 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                      <p className="font-semibold text-slate-800 dark:text-slate-200">Weighted Formula:</p>
                       {[
                         ['🟢', 'Material Recyclability', '35%'],
                         ['🔵', 'Reuse Potential',        '20%'],
@@ -992,10 +992,10 @@ const Analysis = () => {
                           <span className="flex items-center gap-1.5">
                             <span>{dot}</span> {lbl}
                           </span>
-                          <span className="font-bold text-slate-200">{wt}</span>
+                          <span className="font-bold text-slate-800 dark:text-slate-200">{wt}</span>
                         </div>
                       ))}
-                      <div className="pt-2 border-t border-slate-700 text-slate-400 italic">
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 italic">
                         Based on industry circular economy benchmarks. Scores calculated per-item at scan time.
                       </div>
                     </div>
@@ -1004,10 +1004,10 @@ const Analysis = () => {
               </div>
 
               {/* Recommendation Card */}
-              <div className="bg-slate-900 rounded-2xl border border-slate-700/50 shadow-md p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-md p-6">
                 <div className="flex items-center gap-2 mb-5">
                   <Recycle className="w-5 h-5 text-emerald-500" />
-                  <h2 className="text-base font-bold text-slate-100">Recycling Recommendations</h2>
+                  <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Recycling Recommendations</h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1025,9 +1025,9 @@ const Analysis = () => {
                   </div>
 
                   {/* Waste Category */}
-                  <div className="p-5 bg-slate-800/80 rounded-xl border border-slate-700">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Waste Category</p>
-                    <p className="text-lg font-bold text-slate-100">
+                  <div className="p-5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Waste Category</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-slate-100">
                       {analysisResult.detected_condition === 'Good'
                         ? 'Reusable / Resalable'
                         : analysisResult.detected_condition?.includes('Stain')
@@ -1035,28 +1035,28 @@ const Analysis = () => {
                         : 'Mechanical Recycling'
                       }
                     </p>
-                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                      AI condition: <strong className="text-slate-200">{analysisResult.detected_condition}</strong>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                      AI condition: <strong className="text-slate-800 dark:text-slate-200">{analysisResult.detected_condition}</strong>
                     </p>
                   </div>
 
                   {/* Reuse Potential */}
-                  <div className="p-5 bg-slate-800/80 rounded-xl border border-slate-700">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Reuse Potential</p>
-                    <p className="text-lg font-bold text-slate-100">
+                  <div className="p-5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Reuse Potential</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-slate-100">
                       {barsData[1].achieved >= 16
                         ? 'High Reuse Potential'
                         : barsData[1].achieved >= 8
                         ? 'Moderate Potential'
                         : 'Low Reuse Potential'}
                     </p>
-                    <div className="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="mt-2 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full bg-blue-500"
                         style={{ width: `${(barsData[1].achieved / 20) * 100}%`, transition: 'width 1s ease' }}
                       />
                     </div>
-                    <p className="text-xs text-slate-400 mt-1.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
                       {barsData[1].achieved.toFixed(1)} / 20 score points
                     </p>
                   </div>
