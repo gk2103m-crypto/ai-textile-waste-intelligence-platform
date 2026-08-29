@@ -333,7 +333,7 @@ export default function SustainabilityDataset() {
     });
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-6 pb-8 animate-fade-in">
 
       {/* ═══ PAGE HEADER ════════════════════════════════════════════════════ */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -352,7 +352,7 @@ export default function SustainabilityDataset() {
           <button
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold glass-card text-slate-700 dark:text-slate-200 hover:-translate-y-0.5 hover:shadow-md rounded-xl transition-all duration-200 disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -389,14 +389,14 @@ export default function SustainabilityDataset() {
               placeholder="Search fabric, category, or batch ID…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm border border-white/40 dark:border-slate-700 rounded-xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full pl-9 pr-4 py-2 text-sm rounded-xl glass-card text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all duration-200"
             />
           </div>
           {/* Sort */}
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="px-3 py-2 text-sm border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+            className="px-3 py-2 text-sm rounded-xl glass-card text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer transition-all duration-200"
           >
             <option value="score_desc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Score: High → Low</option>
             <option value="score_asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Score: Low → High</option>

@@ -269,7 +269,7 @@ export default function ESGReports() {
 
   return (
     // Outer wrapper holds the export button OUTSIDE the captured area (no button in PDF)
-    <div className="p-6 max-w-6xl mx-auto space-y-4">
+    <div className="p-6 max-w-6xl mx-auto space-y-4 animate-fade-in">
 
       {/* ── Page header with Export button ────────────────────────────── */}
       <div className="flex justify-between items-center">
@@ -304,7 +304,7 @@ export default function ESGReports() {
       </div>
 
       {/* ── CRITICAL: This div is the capture target ─────────────────────── */}
-      <div id="esg-report-content" className="space-y-6 bg-slate-50/50 dark:bg-slate-950/50 backdrop-blur-sm rounded-2xl p-4">
+      <div id="esg-report-content" className="space-y-6 glass-card rounded-2xl p-6">
 
         {error ? (
           <div className="bg-red-50 p-4 rounded-lg flex items-center gap-3 text-red-600">
