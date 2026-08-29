@@ -31,7 +31,7 @@ def seed_default_users():
     
     default_users = [
         {"email": "test@eco.com", "password": "test123", "role": UserRole.ADMIN},
-        {"email": "krish123@gmail.com", "password": "test123", "role": "Manufacturer"},
+        {"email": "krish123@gmail.com", "password": "test123", "role": UserRole.MANUFACTURER},
         {"email": "facility@eco.com", "password": "facility123", "role": UserRole.FACILITY_OPERATOR},
         {"email": "sustainability@eco.com", "password": "sustain123", "role": UserRole.SUSTAINABILITY_MANAGER}
     ]

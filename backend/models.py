@@ -12,10 +12,11 @@ import enum
 
 # Defining the exact roles mentioned in the project document
 class UserRole(str, enum.Enum):
-    FACILITY_OPERATOR = "Recycling Facility Operator"
-    SUSTAINABILITY_MANAGER = "Sustainability Manager"
-    MANUFACTURER = "Textile Manufacturer"
-    ADMIN = "Administrator"
+    FACILITY_OPERATOR = "FACILITY_OPERATOR"
+    SUSTAINABILITY_MANAGER = "SUSTAINABILITY_MANAGER"
+    MANUFACTURER = "MANUFACTURER"
+    ADMIN = "ADMIN"
+
 
 
 # Defining the User Database Schema for PostgreSQL

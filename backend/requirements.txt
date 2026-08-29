@@ -13,3 +13,5 @@ tensorflow
 pillow
 scikit-learn
 pandas
+python-dotenv
+psycopg2-binary

@@ -2,9 +2,12 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv  # <-- Puthusa add pannathu
 
+# .env file-la irukkura secrets-ah load panna
+load_dotenv()  
 
-# Read from environment variable (set in docker-compose.yml) — fallback to sqlite for local dev
+# Read from environment variable — fallback to sqlite for local dev
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "sqlite:///./textile_waste.db"

@@ -9,7 +9,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # ── System dependencies ───────────────────────────────────────────────────────
-# libpq-dev  → required by psycopg2-binary (PostgreSQL driver)
+# libpq-dev   → required by psycopg2-binary (PostgreSQL driver)
 # build-essential → needed for compiling native Python extensions
 RUN apt-get update && apt-get install -y \
     libpq-dev \
@@ -28,12 +28,9 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY . .
 
 # ── AI Model files ────────────────────────────────────────────────────────────
-# The .h5 model files live in the project root (one level up from /backend).
-# When running via docker-compose, they are bind-mounted.
-# This COPY handles standalone `docker build` from the backend/ directory.
-# (Safe to fail silently if files are not present here.)
-COPY --chown=root:root ../material_classifier.h5  /models/material_classifier.h5 2>/dev/null || true
-COPY --chown=root:root ../condition_classifier.h5 /models/condition_classifier.h5 2>/dev/null || true
+# Models are now copied directly from the local backend/models/ directory
+COPY --chown=root:root models/material_classifier.h5  /models/material_classifier.h5
+COPY --chown=root:root models/condition_classifier.h5 /models/condition_classifier.h5
 
 # ── Environment ───────────────────────────────────────────────────────────────
 # Disable Python output buffering so logs appear in real-time in Docker
@@ -45,5 +42,4 @@ EXPOSE 8000
 # ── Startup command ───────────────────────────────────────────────────────────
 # --host 0.0.0.0  → binds to all interfaces (required inside Docker)
 # --port 8000     → matches EXPOSE declaration
-# --reload        → disabled for production; enable by overriding CMD in dev
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
