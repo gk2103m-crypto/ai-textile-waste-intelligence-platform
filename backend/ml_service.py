@@ -15,8 +15,21 @@ from sustainability_service import calculate_circularity_score, generate_environ
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
-MATERIAL_MODEL_PATH = os.path.join(ROOT_DIR, "material_classifier.h5")
-CONDITION_MODEL_PATH = os.path.join(ROOT_DIR, "condition_classifier.h5")
+# Flexible path lookup for both Docker container (/models) and local setup (backend/models)
+def resolve_model_path(filename):
+    possible_paths = [
+        os.path.join("/models", filename),                     # Docker container root /models
+        os.path.join(ROOT_DIR, "models", filename),            # Local backend/models or root/models
+        os.path.join(BASE_DIR, "models", filename),            # Inside backend/models
+        os.path.join(ROOT_DIR, filename)                       # Fallback root
+    ]
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+    return possible_paths[0] # Default fallback path
+
+MATERIAL_MODEL_PATH = resolve_model_path("material_classifier.h5")
+CONDITION_MODEL_PATH = resolve_model_path("condition_classifier.h5")
 
 MATERIAL_CLASSES = [
     "Acrylic", "Artificial_fur", "Artificial_leather", "Blended", "Chenille",
@@ -49,13 +62,13 @@ def load_ai_models():
         material_model = load_model(MATERIAL_MODEL_PATH)
         print("[INFO] Material Model Loaded Successfully!")
     else:
-        print("[WARNING] Material model not found. Using fallback.")
+        print(f"[WARNING] Material model not found at {MATERIAL_MODEL_PATH}. Using fallback.")
 
     if os.path.exists(CONDITION_MODEL_PATH):
         condition_model = load_model(CONDITION_MODEL_PATH)
         print("[INFO] Condition Model Loaded Successfully!")
     else:
-        print("[WARNING] Condition model not found. Using fallback.")
+        print(f"[WARNING] Condition model not found at {CONDITION_MODEL_PATH}. Using fallback.")
 
 
 def preprocess_image_input(img_input):
