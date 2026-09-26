@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Leaf, LogIn, Zap } from 'lucide-react';
-import { API_BASE_URL } from '../api';
+
+// Define API base URL directly to avoid any missing file or path import errors
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
 
 export default function Login() {
   const [email, setEmail] = useState('');
