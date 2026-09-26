@@ -6,7 +6,7 @@ const isLocal = Boolean(
 );
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (
-  isLocal 
-    ? 'http://localhost:8000' 
-    : 'https://ai-textile-backend.onrender.com'
+  isLocal
+    ? 'http://localhost:8000'
+    : 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com'
 );
