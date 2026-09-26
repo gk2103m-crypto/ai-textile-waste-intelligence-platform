@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Leaf, LogIn, Zap } from 'lucide-react';
-import { API_BASE_URL } from './api';
+import { API_BASE_URL } from '../api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
