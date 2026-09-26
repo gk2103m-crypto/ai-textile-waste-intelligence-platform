@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { Trash2, Users, ShieldAlert, RefreshCw, Loader2 } from 'lucide-react';
 
-// GAP-11 FIX: Added role-based access guard (Admin-only), delete functionality, and proper auth headers
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-backend.onrender.com';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -13,13 +13,15 @@ export default function UserManagement() {
   const navigate = useNavigate();
   const { addToast } = useToast();
 
-  // GAP-11 FIX: Role guard — redirect non-admins away
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role !== 'Administrator') {
+    const userRole = user?.role?.toLowerCase()?.trim() || "";
+
+    // Restrict access to admin or administrator roles only
+    if (userRole !== 'admin' && userRole !== 'administrator') {
       addToast({
         type: 'warning',
-        title: '🔒 Access Denied',
+        title: 'Access Denied',
         message: 'User Management is restricted to Administrators only.',
         duration: 5000,
       });
@@ -33,15 +35,20 @@ export default function UserManagement() {
     setLoading(true);
     const token = localStorage.getItem('token');
     axios
-      .get('http://localhost:8000/api/auth/users', {
+      .get(`${API_BASE_URL}/api/auth/users`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
-      .then(res => setUsers(res.data))
+      .then(res => {
+        // Safely check if response data is an array
+        const data = Array.isArray(res.data) ? res.data : [];
+        setUsers(data);
+      })
       .catch(err => {
         console.error('Error fetching users:', err);
+        setUsers([]); // Reset to empty array on failure to prevent UI crash
         addToast({
           type: 'error',
-          title: '❌ Fetch Failed',
+          title: 'Fetch Failed',
           message: 'Could not load users. Ensure you are logged in as Administrator.',
           duration: 5000,
         });
@@ -54,12 +61,12 @@ export default function UserManagement() {
     setDeletingId(userId);
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:8000/api/auth/users/${userId}`, {
+      await axios.delete(`${API_BASE_URL}/api/auth/users/${userId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       addToast({
         type: 'warning',
-        title: '🗑️ User Deleted',
+        title: 'User Deleted',
         message: `User "${username}" (#${userId}) has been removed from the platform.`,
         duration: 5000,
       });
@@ -67,7 +74,7 @@ export default function UserManagement() {
     } catch (err) {
       addToast({
         type: 'error',
-        title: '❌ Delete Failed',
+        title: 'Delete Failed',
         message: err.response?.data?.detail || 'Could not delete user.',
         duration: 5000,
       });
@@ -77,24 +84,24 @@ export default function UserManagement() {
   };
 
   const ROLE_COLORS = {
-    'Administrator':               'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20',
-    'Textile Manufacturer':        'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20',
+    'Admin': 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20',
+    'Administrator': 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20',
+    'Textile Manufacturer': 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20',
     'Recycling Facility Operator': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
-    'Sustainability Manager':      'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20',
+    'Sustainability Manager': 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20',
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64 gap-3 text-slate-400">
         <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
-        Loading users…
+        Loading users...
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -102,7 +109,7 @@ export default function UserManagement() {
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-            Administrator access only — {users.length} registered user{users.length !== 1 ? 's' : ''}
+            Administrator access only — {Array.isArray(users) ? users.length : 0} registered user{(Array.isArray(users) ? users.length : 0) !== 1 ? 's' : ''}
           </p>
         </div>
         <button
@@ -113,7 +120,6 @@ export default function UserManagement() {
         </button>
       </div>
 
-      {/* Table card */}
       <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -126,7 +132,7 @@ export default function UserManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/20 dark:divide-slate-800/60 text-slate-900 dark:text-slate-200">
-            {users.length === 0 ? (
+            {!Array.isArray(users) || users.length === 0 ? (
               <tr>
                 <td colSpan="5" className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">No users found.</td>
               </tr>
@@ -145,17 +151,17 @@ export default function UserManagement() {
                     </span>
                   </td>
                   <td className="p-4 text-center">
-                    {u.role !== 'Administrator' && (
+                    {(u.role !== 'Administrator' && u.role !== 'Admin') && (
                       <button
                         onClick={() => handleDelete(u.id, u.username)}
                         disabled={deletingId === u.id}
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900/50 transition-all duration-200 active:scale-95 disabled:opacity-40"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        {deletingId === u.id ? 'Deleting…' : 'Delete'}
+                        {deletingId === u.id ? 'Deleting...' : 'Delete'}
                       </button>
                     )}
-                    {u.role === 'Administrator' && (
+                    {(u.role === 'Administrator' || u.role === 'Admin') && (
                       <span className="text-xs text-slate-400 dark:text-slate-600 italic">Protected</span>
                     )}
                   </td>

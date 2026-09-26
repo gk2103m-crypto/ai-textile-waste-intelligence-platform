@@ -4,10 +4,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-# Local env Variables load aagum, aana Render Env variables-ah override pannadhu
+# Local env Variables load 
 load_dotenv(override=False)
 
-# Render Environment Variable-la irundhu DATABASE_URL-ah edukum
+# Render Environment Variable- DATABASE_URL
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # Fallback for local testing if DATABASE_URL is not set

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useToast } from './context/ToastContext'; // Module 11: Notification & Alert System
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 const InventoryDashboard = () => {
   const [inventory, setInventory] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -22,20 +24,23 @@ const InventoryDashboard = () => {
 
   const fetchInventory = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/inventory');
-      setInventory(res.data);
+      const res = await axios.get(`${API_BASE_URL}/api/inventory`);
+      // Safe check: Ensure response data is an array before setting state
+      const data = Array.isArray(res.data) ? res.data : [];
+      setInventory(data);
 
       // Module 11 — Inventory Warning: alert when >10 pending batches
-      if (res.data.length > 10) {
+      if (data.length > 10) {
         addToast({
           type: 'warning',
           title: '⚠️ Inventory Warning',
-          message: `${res.data.length} waste batches are pending processing. Consider scheduling a collection run.`,
+          message: `${data.length} waste batches are pending processing. Consider scheduling a collection run.`,
           duration: 6000,
         });
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setInventory([]); // Reset to empty array on fetch failure
     }
   };
 
@@ -45,7 +50,7 @@ const InventoryDashboard = () => {
     e.preventDefault();
     try {
       if (editItem) {
-        await axios.put(`http://localhost:8000/api/inventory/${editItem.batch_id}`, formData);
+        await axios.put(`${API_BASE_URL}/api/inventory/${editItem.batch_id}`, formData);
         setEditItem(null);
         // Module 11 — Success: edit saved
         addToast({
@@ -54,7 +59,7 @@ const InventoryDashboard = () => {
           message: `Batch #${editItem.batch_id} (${formData.fabric_type}) has been updated successfully.`,
         });
       } else {
-        await axios.post('http://localhost:8000/api/inventory', formData);
+        await axios.post(`${API_BASE_URL}/api/inventory`, formData);
         // Module 11 — Success: new inventory added
         addToast({
           type: 'success',
@@ -73,7 +78,7 @@ const InventoryDashboard = () => {
 
   const handleView = async (batch_id) => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/inventory/${batch_id}`);
+      const res = await axios.get(`${API_BASE_URL}/api/inventory/${batch_id}`);
       setViewItem(res.data);
     } catch (error) { console.error("Error fetching item:", error); }
   };
@@ -93,7 +98,7 @@ const InventoryDashboard = () => {
   const handleDelete = async (batch_id) => {
     if (!window.confirm(`Are you sure you want to permanently delete Batch #${batch_id}? This action cannot be undone.`)) return;
     try {
-      await axios.delete(`http://localhost:8000/api/inventory/${batch_id}`);
+      await axios.delete(`${API_BASE_URL}/api/inventory/${batch_id}`);
       fetchInventory();
       // Module 11 — Warning: deletion alert
       addToast({
@@ -112,15 +117,15 @@ const InventoryDashboard = () => {
   // ==========================================
   const handleAiScan = async () => {
     if (!selectedFile) return alert("Please select an image file before scanning.");
-    
+
     const uploadData = new FormData();
     uploadData.append('file', selectedFile);
-    
+
     setAiLoading(true);
     setAiResult(null);
 
     try {
-      const res = await axios.post('http://localhost:8000/api/inventory/upload', uploadData, {
+      const res = await axios.post(`${API_BASE_URL}/api/inventory/upload`, uploadData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       console.log("🔥 AI BACKEND RESPONSE:", res.data);
@@ -136,12 +141,12 @@ const InventoryDashboard = () => {
       });
     } catch (error) {
       console.error("AI Scan Error:", error);
-      alert("AI Scan failed. Please ensure the FastAPI backend server is running on port 8000.");
+      alert("AI Scan failed. Please ensure the FastAPI backend server is running.");
       // Module 11 — Waste Collection Alert on scan failure
       addToast({
         type: 'error',
         title: '❌ AI Scan Failed',
-        message: 'Could not connect to AI backend. Ensure FastAPI server is running on port 8000.',
+        message: 'Could not connect to AI backend. Ensure FastAPI server is running.',
         duration: 6000,
       });
     } finally {
@@ -190,15 +195,15 @@ const InventoryDashboard = () => {
         <div className="glass-card p-6 rounded-2xl border-t-4 border-t-emerald-500">
           <h3 className="font-bold text-lg mb-4 text-slate-900 dark:text-slate-200">{editItem ? `Edit Batch #${editItem.batch_id}` : 'Add New Inventory'}</h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-            <input type="text" placeholder="Fabric Type (e.g. Cotton)" required className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition" value={formData.fabric_type} onChange={e => setFormData({...formData, fabric_type: e.target.value})} />
-            <input type="number" placeholder="Quantity (kg)" required className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition" value={formData.quantity_kg} onChange={e => setFormData({...formData, quantity_kg: e.target.value})} />
-            <input type="text" placeholder="Color" required className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition" value={formData.color} onChange={e => setFormData({...formData, color: e.target.value})} />
-            <select className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition cursor-pointer" value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})}>
+            <input type="text" placeholder="Fabric Type (e.g. Cotton)" required className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition" value={formData.fabric_type} onChange={e => setFormData({ ...formData, fabric_type: e.target.value })} />
+            <input type="number" placeholder="Quantity (kg)" required className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition" value={formData.quantity_kg} onChange={e => setFormData({ ...formData, quantity_kg: e.target.value })} />
+            <input type="text" placeholder="Color" required className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition" value={formData.color} onChange={e => setFormData({ ...formData, color: e.target.value })} />
+            <select className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition cursor-pointer" value={formData.source} onChange={e => setFormData({ ...formData, source: e.target.value })}>
               <option className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Pre-consumer</option>
               <option className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Post-consumer</option>
               <option className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Manufacturing Scrap</option>
             </select>
-            <select className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition cursor-pointer" value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})}>
+            <select className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 p-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition cursor-pointer" value={formData.condition} onChange={e => setFormData({ ...formData, condition: e.target.value })}>
               <option className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Good</option>
               <option className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Torn</option>
               <option className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Stained</option>
@@ -223,7 +228,7 @@ const InventoryDashboard = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/20 dark:divide-slate-800/60 text-slate-900 dark:text-slate-200">
-            {inventory.length === 0 ? (
+            {!Array.isArray(inventory) || inventory.length === 0 ? (
               <tr>
                 <td colSpan="6" className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">
                   No data found. Add some inventory!
@@ -280,15 +285,15 @@ const InventoryDashboard = () => {
             <h3 className="text-xl font-extrabold mb-4 text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               📸 AI Textile Waste Scanner
             </h3>
-            
-            <input 
-              type="file" 
+
+            <input
+              type="file"
               accept="image/*"
               onChange={(e) => setSelectedFile(e.target.files[0])}
               className="bg-white/60 dark:bg-slate-900 border border-white/40 dark:border-slate-700 text-slate-900 dark:text-slate-200 p-3 w-full rounded-xl mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
             />
 
-            <button 
+            <button
               onClick={handleAiScan}
               disabled={aiLoading}
               className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 active:scale-95 text-white py-2.5 rounded-xl font-bold disabled:opacity-50 transition-all duration-200 shadow shadow-purple-500/25"
@@ -299,7 +304,7 @@ const InventoryDashboard = () => {
             {aiResult && (
               <div className="mt-6 bg-white/50 dark:bg-slate-900/80 backdrop-blur-sm p-4 rounded-2xl border border-white/40 dark:border-purple-500/30">
                 <h4 className="font-bold text-purple-600 dark:text-purple-300 mb-3 text-center border-b border-slate-200/60 dark:border-slate-700/80 pb-2">AI Scan Results</h4>
-                
+
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="glass-card border border-white/40 dark:border-slate-700/60 p-3 rounded-xl">
                     <span className="font-bold text-slate-500 dark:text-slate-400 block text-xs mb-1">Fabric Type:</span>
@@ -332,8 +337,8 @@ const InventoryDashboard = () => {
               </div>
             )}
 
-            <button 
-              onClick={() => setShowAiModal(false)} 
+            <button
+              onClick={() => setShowAiModal(false)}
               className="mt-5 w-full bg-slate-100/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 py-2.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-200 font-semibold border border-slate-200/60 dark:border-slate-600"
             >
               Close Scanner

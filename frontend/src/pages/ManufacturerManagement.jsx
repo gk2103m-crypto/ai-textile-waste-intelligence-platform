@@ -4,11 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Factory, ShieldAlert, Loader2 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
-/**
- * ManufacturerManagement — Admin-only page
- * Filters the user list to display only Textile Manufacturer accounts.
- * Authenticated requests sent with JWT token (GAP-11 FIX pattern applied).
- */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-backend.onrender.com';
+
 export default function ManufacturerManagement() {
   const [manufacturers, setManufacturers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,10 +14,12 @@ export default function ManufacturerManagement() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role !== 'Administrator') {
+    const userRole = user?.role?.toLowerCase()?.trim() || "";
+
+    if (userRole !== 'admin' && userRole !== 'administrator') {
       addToast({
         type: 'warning',
-        title: '🔒 Access Denied',
+        title: 'Access Denied',
         message: 'Manufacturer Management is restricted to Administrators only.',
         duration: 5000,
       });
@@ -30,17 +29,20 @@ export default function ManufacturerManagement() {
 
     const token = localStorage.getItem('token');
     axios
-      .get('http://localhost:8000/api/auth/users', {
+      .get(`${API_BASE_URL}/api/auth/users`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       .then(res => {
-        setManufacturers(res.data.filter(u => u.role === 'Textile Manufacturer'));
+        // Safely verify if response data is an array before filtering
+        const data = Array.isArray(res.data) ? res.data : [];
+        setManufacturers(data.filter(u => u && u.role === 'Textile Manufacturer'));
       })
       .catch(err => {
         console.error('Error fetching manufacturers:', err);
+        setManufacturers([]); // Fallback to empty array on fetch failure to prevent rendering errors
         addToast({
           type: 'error',
-          title: '❌ Fetch Failed',
+          title: 'Fetch Failed',
           message: 'Could not load manufacturer accounts.',
           duration: 5000,
         });
@@ -52,25 +54,23 @@ export default function ManufacturerManagement() {
     return (
       <div className="flex items-center justify-center h-64 gap-3 text-slate-400">
         <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
-        Loading manufacturers…
+        Loading manufacturers...
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="mb-6">
         <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
           <Factory className="w-7 h-7 text-emerald-500" /> Manufacturer Management
         </h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
           <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-          Administrator access only — {manufacturers.length} registered manufacturer{manufacturers.length !== 1 ? 's' : ''}
+          Administrator access only — {Array.isArray(manufacturers) ? manufacturers.length : 0} registered manufacturer{(Array.isArray(manufacturers) ? manufacturers.length : 0) !== 1 ? 's' : ''}
         </p>
       </div>
 
-      {/* Table card */}
       <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -82,9 +82,11 @@ export default function ManufacturerManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/20 dark:divide-slate-800/60 text-slate-900 dark:text-slate-200">
-            {manufacturers.length === 0 ? (
+            {!Array.isArray(manufacturers) || manufacturers.length === 0 ? (
               <tr>
-                <td colSpan="4" className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">No manufacturers registered.</td>
+                <td colSpan="4" className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                  No manufacturers registered.
+                </td>
               </tr>
             ) : (
               manufacturers.map(u => (

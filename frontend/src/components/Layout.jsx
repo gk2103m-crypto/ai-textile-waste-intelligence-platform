@@ -8,7 +8,15 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const menu = MENU_CONFIG[user.role] || [];
+
+  // 🐛 BUG FIX: Case-insensitive Role Matching 
+  // Backend "admin" nu anupunalum, "Admin" nu anupunalum perfect-a match aagum
+  const userRole = user?.role?.toLowerCase()?.trim() || "";
+  const matchedRoleKey = Object.keys(MENU_CONFIG).find(
+    (key) => key.toLowerCase() === userRole
+  );
+  const menu = matchedRoleKey ? MENU_CONFIG[matchedRoleKey] : [];
+
   const { isDark, toggleTheme } = useTheme();
 
   const handleLogout = () => {
@@ -36,17 +44,21 @@ export default function Layout() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+          {menu.length === 0 && (
+            <div className="px-3 py-4 text-sm text-slate-500 text-center">
+              Loading Menus...
+            </div>
+          )}
           {menu.map((item) => {
             const active = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  active
-                    ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100'
-                }`}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${active
+                  ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100'
+                  }`}
               >
                 {item.label}
               </Link>
@@ -81,11 +93,11 @@ export default function Layout() {
             <div className="w-px h-5 bg-slate-200 dark:bg-slate-700" />
 
             {/* User name */}
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{user.name}</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{user.name || 'User'}</span>
 
             {/* Role badge */}
-            <span className="text-xs bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-semibold border border-emerald-500/20">
-              {user.role}
+            <span className="text-xs bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-semibold border border-emerald-500/20 capitalize">
+              {matchedRoleKey || user.role || 'Guest'}
             </span>
 
             {/* Logout */}

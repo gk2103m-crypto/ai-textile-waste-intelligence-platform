@@ -121,11 +121,11 @@ export default function Dashboard() {
     setExportOpen(false);
     setExportingPDF(true);
     try {
-      const doc   = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const W     = doc.internal.pageSize.getWidth();   // 210 mm
-      const H     = doc.internal.pageSize.getHeight();  // 297 mm
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth();   // 210 mm
+      const H = doc.internal.pageSize.getHeight();  // 297 mm
       const GREEN = [34, 197, 94];    // emerald-500
-      const DARK  = [15, 23, 42];     // slate-900
+      const DARK = [15, 23, 42];     // slate-900
       const WHITE = [255, 255, 255];
       const LIGHT = [248, 250, 252];  // slate-50
       const MUTED = [100, 116, 139];  // slate-500
@@ -161,15 +161,15 @@ export default function Dashboard() {
       // ─────────────────────────────────────────────────────
       // 2. KPI CARDS ROW
       // ─────────────────────────────────────────────────────
-      const kpiY   = 44;
-      const kpiH   = 28;
-      const kpiW   = (W - 24) / 3;  // 3 equal cards, 12 mm margins
+      const kpiY = 44;
+      const kpiH = 28;
+      const kpiW = (W - 24) / 3;  // 3 equal cards, 12 mm margins
       const kpiGap = 6;
 
       const kpis = [
-        { label: 'Total AI Scans',     value: String(analytics?.total_scans ?? 0),  color: [59, 130, 246] },  // blue-500
-        { label: 'Recyclability Rate', value: recyclabilityRate,                     color: [...GREEN] },
-        { label: 'System Status',      value: 'Active',                             color: [99, 102, 241] },  // indigo-500
+        { label: 'Total AI Scans', value: String(analytics?.total_scans ?? 0), color: [59, 130, 246] },  // blue-500
+        { label: 'Recyclability Rate', value: recyclabilityRate, color: [...GREEN] },
+        { label: 'System Status', value: 'Active', color: [99, 102, 241] },  // indigo-500
       ];
 
       kpis.forEach(({ label, value, color }, i) => {
@@ -207,9 +207,9 @@ export default function Dashboard() {
       // ─────────────────────────────────────────────────────
       // 4. MATERIAL DISTRIBUTION TABLE
       // ─────────────────────────────────────────────────────
-      const matDist   = analytics?.material_distribution ?? {};
-      const totalMat  = Object.values(matDist).reduce((s, v) => s + v, 0) || 1;
-      const matRows   = Object.entries(matDist).map(([material, count]) => [
+      const matDist = analytics?.material_distribution ?? {};
+      const totalMat = Object.values(matDist).reduce((s, v) => s + v, 0) || 1;
+      const matRows = Object.entries(matDist).map(([material, count]) => [
         material,
         count,
         `${((count / totalMat) * 100).toFixed(1)}%`,
@@ -218,9 +218,9 @@ export default function Dashboard() {
 
       autoTable(doc, {
         startY: section1Y + 5,
-        head:   [['Material / Fabric Type', 'Batches Scanned', 'Share (%)', 'Volume Level']],
-        body:   matRows.length > 0 ? matRows : [['No scan data yet', '—', '—', '—']],
-        theme:  'grid',
+        head: [['Material / Fabric Type', 'Batches Scanned', 'Share (%)', 'Volume Level']],
+        body: matRows.length > 0 ? matRows : [['No scan data yet', '—', '—', '—']],
+        theme: 'grid',
         styles: {
           font: 'helvetica', fontSize: 9,
           cellPadding: 3, textColor: DARK,
@@ -251,14 +251,14 @@ export default function Dashboard() {
       doc.setLineWidth(0.5);
       doc.line(12, afterMatY + 1.5, W - 12, afterMatY + 1.5);
 
-      const condDist   = analytics?.condition_distribution ?? {};
-      const totalCond  = Object.values(condDist).reduce((s, v) => s + v, 0) || 1;
+      const condDist = analytics?.condition_distribution ?? {};
+      const totalCond = Object.values(condDist).reduce((s, v) => s + v, 0) || 1;
       const STRATEGY_MAP = {
-        'Good':            'Fabric Reuse / Donation',
-        'Torn / Damaged':  'Mechanical Recycling / Fiber Recycling',
-        'Stained / Flawed':'Chemical Recycling / Industrial Wash',
-        'Minor Defect':    'Upcycling / Repair',
-        'Degraded':        'Industrial Recovery / Downcycling',
+        'Good': 'Fabric Reuse / Donation',
+        'Torn / Damaged': 'Mechanical Recycling / Fiber Recycling',
+        'Stained / Flawed': 'Chemical Recycling / Industrial Wash',
+        'Minor Defect': 'Upcycling / Repair',
+        'Degraded': 'Industrial Recovery / Downcycling',
       };
       const condRows = Object.entries(condDist).map(([cond, count]) => [
         cond,
@@ -269,9 +269,9 @@ export default function Dashboard() {
 
       autoTable(doc, {
         startY: afterMatY + 5,
-        head:   [['Physical Condition', 'Batches', 'Share (%)', 'Recommended Strategy']],
-        body:   condRows.length > 0 ? condRows : [['No condition data yet', '—', '—', '—']],
-        theme:  'grid',
+        head: [['Physical Condition', 'Batches', 'Share (%)', 'Recommended Strategy']],
+        body: condRows.length > 0 ? condRows : [['No condition data yet', '—', '—', '—']],
+        theme: 'grid',
         styles: {
           font: 'helvetica', fontSize: 9,
           cellPadding: 3, textColor: DARK,
@@ -409,10 +409,10 @@ export default function Dashboard() {
     <div ref={dashboardRef}>
       {/* Dashboard Header — intentionally OUTSIDE pdf-area so button never appears in PDF */}
       <div className="flex justify-between items-center mb-8">
-      <div>
-        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Facility Overview</h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Live metrics from the AI sorting pipeline</p>
-      </div>
+        <div>
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Facility Overview</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Live metrics from the AI sorting pipeline</p>
+        </div>
 
         {/* ── Export Dropdown ───────────────────────────────────────────── */}
         <div className="relative" ref={dropdownRef}>
@@ -483,91 +483,91 @@ export default function Dashboard() {
       {/* ── PDF capture area starts here — header & export button are above this ── */}
       <div id="dashboard-pdf-area">
 
-      {/* Top Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Total AI Scans */}
-        <div className="glass-card p-6 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
-          <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 dark:from-blue-500/20 dark:to-blue-600/20 p-3.5 rounded-xl border border-blue-500/10 group-hover:scale-110 transition-transform duration-300">
-            <Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+        {/* Top Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Total AI Scans */}
+          <div className="glass-card p-6 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
+            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 dark:from-blue-500/20 dark:to-blue-600/20 p-3.5 rounded-xl border border-blue-500/10 group-hover:scale-110 transition-transform duration-300">
+              <Package className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Total AI Scans</p>
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                {loading ? '…' : totalScans}
+              </h3>
+            </div>
+            <div className="ml-auto w-1.5 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-400 opacity-60" />
           </div>
-          <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Total AI Scans</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              {loading ? '…' : totalScans}
-            </h3>
-          </div>
-          <div className="ml-auto w-1.5 h-12 rounded-full bg-gradient-to-b from-blue-500 to-blue-400 opacity-60" />
-        </div>
 
-        {/* Recyclability Rate */}
-        <div className="glass-card p-6 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
-          <div className="bg-gradient-to-br from-emerald-500/10 to-teal-600/10 dark:from-emerald-500/20 dark:to-teal-600/20 p-3.5 rounded-xl border border-emerald-500/10 group-hover:scale-110 transition-transform duration-300">
-            <Recycle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+          {/* Recyclability Rate */}
+          <div className="glass-card p-6 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
+            <div className="bg-gradient-to-br from-emerald-500/10 to-teal-600/10 dark:from-emerald-500/20 dark:to-teal-600/20 p-3.5 rounded-xl border border-emerald-500/10 group-hover:scale-110 transition-transform duration-300">
+              <Recycle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Recyclability Rate</p>
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{recyclabilityRate}</h3>
+            </div>
+            <div className="ml-auto w-1.5 h-12 rounded-full bg-gradient-to-b from-emerald-500 to-teal-400 opacity-60" />
           </div>
-          <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Recyclability Rate</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{recyclabilityRate}</h3>
-          </div>
-          <div className="ml-auto w-1.5 h-12 rounded-full bg-gradient-to-b from-emerald-500 to-teal-400 opacity-60" />
-        </div>
 
-        {/* System Status */}
-        <div className="glass-card p-6 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
-          <div className="bg-gradient-to-br from-indigo-500/10 to-indigo-600/10 dark:from-indigo-500/20 dark:to-indigo-600/20 p-3.5 rounded-xl border border-indigo-500/10 group-hover:scale-110 transition-transform duration-300">
-            <AlertTriangle className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-          </div>
-          <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">System Status</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Active</h3>
-          </div>
-          <div className="ml-auto w-1.5 h-12 rounded-full bg-gradient-to-b from-indigo-500 to-indigo-400 opacity-60" />
-        </div>
-      </div>
-
-      {/* Analytics Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pie Chart: Material Distribution */}
-        <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-          <div className="px-6 py-4 border-b border-white/30 dark:border-slate-800/50 flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10">
-                <PieChartIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-              </div>
-              Material Distribution
-            </h3>
-          </div>
-          <div className="p-6 h-80 flex justify-center items-center">
-            {loading ? (
-              <p className="text-slate-400 dark:text-slate-500 text-sm">Loading chart data…</p>
-            ) : analytics?.total_scans > 0 ? (
-              <Pie data={materialData} options={chartOptions} />
-            ) : (
-              <p className="text-slate-400 dark:text-slate-500 text-sm">No scan data available yet.</p>
-            )}
+          {/* System Status */}
+          <div className="glass-card p-6 rounded-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
+            <div className="bg-gradient-to-br from-indigo-500/10 to-indigo-600/10 dark:from-indigo-500/20 dark:to-indigo-600/20 p-3.5 rounded-xl border border-indigo-500/10 group-hover:scale-110 transition-transform duration-300">
+              <AlertTriangle className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">System Status</p>
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Active</h3>
+            </div>
+            <div className="ml-auto w-1.5 h-12 rounded-full bg-gradient-to-b from-indigo-500 to-indigo-400 opacity-60" />
           </div>
         </div>
 
-        {/* Bar Chart: Condition Distribution */}
-        <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-          <div className="px-6 py-4 border-b border-white/30 dark:border-slate-800/50 flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
-                <BarChart3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              Physical Condition Trends
-            </h3>
+        {/* Analytics Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Pie Chart: Material Distribution */}
+          <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
+            <div className="px-6 py-4 border-b border-white/30 dark:border-slate-800/50 flex justify-between items-center">
+              <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10">
+                  <PieChartIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                </div>
+                Material Distribution
+              </h3>
+            </div>
+            <div className="p-6 h-80 flex justify-center items-center">
+              {loading ? (
+                <p className="text-slate-400 dark:text-slate-500 text-sm">Loading chart data…</p>
+              ) : analytics?.total_scans > 0 ? (
+                <Pie data={materialData} options={chartOptions} />
+              ) : (
+                <p className="text-slate-400 dark:text-slate-500 text-sm">No scan data available yet.</p>
+              )}
+            </div>
           </div>
-          <div className="p-6 h-80 flex justify-center items-center">
-            {loading ? (
-              <p className="text-slate-400 dark:text-slate-500 text-sm">Loading chart data…</p>
-            ) : analytics?.total_scans > 0 ? (
-              <Bar data={conditionData} options={{ ...chartOptions, maintainAspectRatio: false }} />
-            ) : (
-              <p className="text-slate-400 dark:text-slate-500 text-sm">No condition data available yet.</p>
-            )}
+
+          {/* Bar Chart: Condition Distribution */}
+          <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
+            <div className="px-6 py-4 border-b border-white/30 dark:border-slate-800/50 flex justify-between items-center">
+              <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
+                  <BarChart3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                Physical Condition Trends
+              </h3>
+            </div>
+            <div className="p-6 h-80 flex justify-center items-center">
+              {loading ? (
+                <p className="text-slate-400 dark:text-slate-500 text-sm">Loading chart data…</p>
+              ) : analytics?.total_scans > 0 ? (
+                <Bar data={conditionData} options={{ ...chartOptions, maintainAspectRatio: false }} />
+              ) : (
+                <p className="text-slate-400 dark:text-slate-500 text-sm">No condition data available yet.</p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
       </div>{/* end #dashboard-pdf-area */}
     </div>
