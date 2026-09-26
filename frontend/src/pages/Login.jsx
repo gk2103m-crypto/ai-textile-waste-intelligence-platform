@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Leaf, LogIn, Zap } from 'lucide-react';
+import { API_BASE_URL } from './api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/auth/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email: email,
         password: password,
       });
@@ -116,35 +117,37 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Quick Demo Credentials Card */}
-          <div className="mt-6 p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl text-xs text-slate-300">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-                <Zap className="w-3 h-3" /> Quick Test Credentials (Demo):
-              </span>
-              <span className="text-[10px] text-slate-500">Click to autofill</span>
-            </div>
-            <div className="grid grid-cols-1 gap-2 font-mono">
-              {[
-                { label: 'ADMIN SUPER-CONSOLE', email: 'test@eco.com', pass: 'test123' },
-                { label: 'MANUFACTURER', email: 'krish123@gmail.com', pass: 'test123' },
-                { label: 'RECYCLING FACILITY OPERATOR', email: 'facility@eco.com', pass: 'facility123' },
-                { label: 'SUSTAINABILITY MANAGER', email: 'sustainability@eco.com', pass: 'sustain123' },
-              ].map(({ label, email: e, pass }) => (
-                <div
-                  key={e}
-                  onClick={() => fillCredentials(e, pass)}
-                  className="p-2 bg-slate-900/60 rounded-lg border border-slate-700/60 hover:border-emerald-500/40 hover:bg-slate-900 cursor-pointer transition-all duration-150 flex justify-between items-center"
-                >
-                  <div>
-                    <span className="text-slate-500 block text-[10px] uppercase tracking-wider">{label}</span>
-                    <span className="text-slate-200">{e}</span>
+          {/* Quick Demo Credentials Card - Only visible in development mode */}
+          {import.meta.env.DEV && (
+            <div className="mt-6 p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl text-xs text-slate-300">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <Zap className="w-3 h-3" /> Quick Test Credentials (Demo):
+                </span>
+                <span className="text-[10px] text-slate-500">Click to autofill</span>
+              </div>
+              <div className="grid grid-cols-1 gap-2 font-mono">
+                {[
+                  { label: 'ADMIN SUPER-CONSOLE', email: 'test@eco.com', pass: 'test123' },
+                  { label: 'MANUFACTURER', email: 'krish123@gmail.com', pass: 'test123' },
+                  { label: 'RECYCLING FACILITY OPERATOR', email: 'facility@eco.com', pass: 'facility123' },
+                  { label: 'SUSTAINABILITY MANAGER', email: 'sustainability@eco.com', pass: 'sustain123' },
+                ].map(({ label, email: e, pass }) => (
+                  <div
+                    key={e}
+                    onClick={() => fillCredentials(e, pass)}
+                    className="p-2 bg-slate-900/60 rounded-lg border border-slate-700/60 hover:border-emerald-500/40 hover:bg-slate-900 cursor-pointer transition-all duration-150 flex justify-between items-center"
+                  >
+                    <div>
+                      <span className="text-slate-500 block text-[10px] uppercase tracking-wider">{label}</span>
+                      <span className="text-slate-200">{e}</span>
+                    </div>
+                    <span className="text-emerald-400 font-bold shrink-0 ml-2">{pass}</span>
                   </div>
-                  <span className="text-emerald-400 font-bold shrink-0 ml-2">{pass}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Registration Link */}
           <div className="mt-5 text-center text-sm text-slate-500">

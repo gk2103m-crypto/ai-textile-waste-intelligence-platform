@@ -27,7 +27,7 @@ Base.metadata.create_all(bind=engine)
 def seed_default_users():
     db = SessionLocal()
     created_count = 0
-    existing_count = 0
+    updated_count = 0
     
     default_users = [
         {"email": "test@eco.com", "password": "test123", "role": UserRole.ADMIN},
@@ -39,18 +39,21 @@ def seed_default_users():
     try:
         for u in default_users:
             existing_user = db.query(User).filter(User.email == u["email"]).first()
-            if existing_user:
-                existing_count += 1
-                continue
-            
             hashed_pwd = get_password_hash(u["password"])
-            username = u["email"].split('@')[0]
-            new_user = User(username=username, email=u["email"], hashed_password=hashed_pwd, role=u["role"])
-            db.add(new_user)
-            created_count += 1
+            
+            if existing_user:
+                # Update password and role to ensure 100% match with current hashing
+                existing_user.hashed_password = hashed_pwd
+                existing_user.role = u["role"]
+                updated_count += 1
+            else:
+                username = u["email"].split('@')[0]
+                new_user = User(username=username, email=u["email"], hashed_password=hashed_pwd, role=u["role"])
+                db.add(new_user)
+                created_count += 1
             
         db.commit()
-        print(f"[INFO] Seeded default users: {created_count} created, {existing_count} already existed.")
+        print(f"[INFO] Seeded default users: {created_count} created, {updated_count} updated.")
     except Exception as e:
         db.rollback()
         print(f"[ERROR] Failed to seed default users: {e}")
