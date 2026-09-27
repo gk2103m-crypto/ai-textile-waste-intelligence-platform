@@ -9,12 +9,17 @@ export default function Layout() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  // 🐛 BUG FIX: Case-insensitive Role Matching 
-  // Backend "admin" nu anupunalum, "Admin" nu anupunalum perfect-a match aagum
-  const userRole = user?.role?.toLowerCase()?.trim() || "";
+  // Normalize role string (removes underscores and extra spaces for matching)
+  const normalizeRole = (roleStr) =>
+    (roleStr || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+
+  const userRole = normalizeRole(user?.role);
+
+  // Match key in MENU_CONFIG seamlessly
   const matchedRoleKey = Object.keys(MENU_CONFIG).find(
-    (key) => key.toLowerCase() === userRole
+    (key) => normalizeRole(key) === userRole
   );
+
   const menu = matchedRoleKey ? MENU_CONFIG[matchedRoleKey] : [];
 
   const { isDark, toggleTheme } = useTheme();
@@ -93,7 +98,7 @@ export default function Layout() {
             <div className="w-px h-5 bg-slate-200 dark:bg-slate-700" />
 
             {/* User name */}
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{user.name || 'User'}</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{user.name || user.username || 'User'}</span>
 
             {/* Role badge */}
             <span className="text-xs bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-semibold border border-emerald-500/20 capitalize">
