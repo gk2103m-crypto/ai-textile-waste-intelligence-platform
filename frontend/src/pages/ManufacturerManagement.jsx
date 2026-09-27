@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Factory, ShieldAlert, Loader2 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-backend.onrender.com';
+// Updated to point to correct Render URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
 
 export default function ManufacturerManagement() {
   const [manufacturers, setManufacturers] = useState([]);
@@ -33,13 +34,12 @@ export default function ManufacturerManagement() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       .then(res => {
-        // Safely verify if response data is an array before filtering
         const data = Array.isArray(res.data) ? res.data : [];
         setManufacturers(data.filter(u => u && u.role === 'Textile Manufacturer'));
       })
       .catch(err => {
         console.error('Error fetching manufacturers:', err);
-        setManufacturers([]); // Fallback to empty array on fetch failure to prevent rendering errors
+        setManufacturers([]);
         addToast({
           type: 'error',
           title: 'Fetch Failed',

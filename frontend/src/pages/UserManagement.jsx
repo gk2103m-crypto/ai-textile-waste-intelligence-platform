@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { Trash2, Users, ShieldAlert, RefreshCw, Loader2 } from 'lucide-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-backend.onrender.com';
+// Updated to point to correct Render URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -17,7 +18,6 @@ export default function UserManagement() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userRole = user?.role?.toLowerCase()?.trim() || "";
 
-    // Restrict access to admin or administrator roles only
     if (userRole !== 'admin' && userRole !== 'administrator') {
       addToast({
         type: 'warning',
@@ -39,13 +39,12 @@ export default function UserManagement() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       .then(res => {
-        // Safely check if response data is an array
         const data = Array.isArray(res.data) ? res.data : [];
         setUsers(data);
       })
       .catch(err => {
         console.error('Error fetching users:', err);
-        setUsers([]); // Reset to empty array on failure to prevent UI crash
+        setUsers([]);
         addToast({
           type: 'error',
           title: 'Fetch Failed',

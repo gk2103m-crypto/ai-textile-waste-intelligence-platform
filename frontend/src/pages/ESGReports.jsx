@@ -6,7 +6,10 @@ import {
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { useToast } from '../context/ToastContext'; // Module 11: Notification & Alert System
+import { useToast } from '../context/ToastContext';
+
+// Correct Backend API URL added
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
 
 const getCategoryFromScore = (score) => {
   if (score >= 85) return 'Excellent Recovery Potential';
@@ -17,31 +20,28 @@ const getCategoryFromScore = (score) => {
 };
 
 export default function ESGReports() {
-  const [metrics, setMetrics]         = useState(null);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
+  const [metrics, setMetrics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [exportingPDF, setExportingPDF] = useState(false);
 
-  // Module 11: Notification & Alert System
-  const { addToast }   = useToast();
-  const toastFired     = useRef(false); // prevents duplicate toasts on StrictMode double-invoke
+  const { addToast } = useToast();
+  const toastFired = useRef(false);
 
-  // ── Fetch ESG metrics ──────────────────────────────────────────────────────
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
         const token = localStorage.getItem('token');
+        // Fixed URL from localhost to API_BASE_URL
         const response = await axios.get(
-          'http://localhost:8000/api/inventory/sustainability-stats',
+          `${API_BASE_URL}/api/inventory/sustainability-stats`,
           { headers: token ? { Authorization: `Bearer ${token}` } : {} }
         );
         setMetrics(response.data);
         setLoading(false);
 
-        // Module 11 — Platform Announcement: ESG data refreshed
         if (!toastFired.current) {
           toastFired.current = true;
-
           addToast({
             type: 'info',
             title: '📊 ESG Report Updated',
@@ -49,7 +49,6 @@ export default function ESGReports() {
             duration: 4000,
           });
 
-          // Module 11 — Sustainability Milestone Alert: celebrate CO₂ savings threshold
           const co2 = response.data.total_co2_saved_kg || 0;
           if (co2 >= 50) {
             addToast({
@@ -78,23 +77,19 @@ export default function ESGReports() {
     fetchAnalytics();
   }, []);
 
-  // ── Programmatic PDF Export (pure jsPDF + autoTable — no DOM capture) ──────────────
   const handleExportPDF = () => {
     if (!metrics) return;
     setExportingPDF(true);
     try {
-      const doc   = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const W     = doc.internal.pageSize.getWidth();
-      const H     = doc.internal.pageSize.getHeight();
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
       const GREEN = [34, 197, 94];
-      const DARK  = [15, 23, 42];
+      const DARK = [15, 23, 42];
       const WHITE = [255, 255, 255];
       const LIGHT = [248, 250, 252];
       const MUTED = [100, 116, 139];
 
-      // ─────────────────────────────────────────────────────
-      // 1. HEADER BLOCK
-      // ─────────────────────────────────────────────────────
       doc.setFillColor(...GREEN);
       doc.rect(0, 0, W, 36, 'F');
       doc.setFillColor(...DARK);
@@ -114,19 +109,16 @@ export default function ESGReports() {
       doc.setFontSize(8);
       doc.text(`Generated: ${now}`, W - 12, 22, { align: 'right' });
 
-      // ─────────────────────────────────────────────────────
-      // 2. ESG IMPACT KPI CARDS (2 × 2 grid)
-      // ─────────────────────────────────────────────────────
       const gridStartY = 44;
       const cardW = (W - 30) / 2;
       const cardH = 26;
       const cardGap = 6;
 
       const esgCards = [
-        { label: 'CO₂ Emissions Saved',  value: `${metrics.total_co2_saved_kg ?? 0} kg`,           color: [34, 197, 94]  },
-        { label: 'Water Conservation',   value: `${metrics.total_water_saved_liters ?? 0} L`,       color: [59, 130, 246] },
-        { label: 'Energy Recovered',     value: `${metrics.total_energy_saved_kwh ?? 0} kWh`,      color: [234, 179, 8]  },
-        { label: 'Landfill Diverted',    value: `${metrics.total_landfill_diverted_kg ?? 0} kg`,   color: [168, 85, 247] },
+        { label: 'CO₂ Emissions Saved', value: `${metrics.total_co2_saved_kg ?? 0} kg`, color: [34, 197, 94] },
+        { label: 'Water Conservation', value: `${metrics.total_water_saved_liters ?? 0} L`, color: [59, 130, 246] },
+        { label: 'Energy Recovered', value: `${metrics.total_energy_saved_kwh ?? 0} kWh`, color: [234, 179, 8] },
+        { label: 'Landfill Diverted', value: `${metrics.total_landfill_diverted_kg ?? 0} kg`, color: [168, 85, 247] },
       ];
 
       esgCards.forEach(({ label, value, color }, i) => {
@@ -148,9 +140,6 @@ export default function ESGReports() {
         doc.text(value, x + 7, y + 20);
       });
 
-      // ─────────────────────────────────────────────────────
-      // 3. CIRCULARITY SCORE HIGHLIGHT PANEL
-      // ─────────────────────────────────────────────────────
       const panelY = gridStartY + 2 * (cardH + cardGap) + 6;
       doc.setFillColor(...DARK);
       doc.roundedRect(12, panelY, W - 24, 22, 3, 3, 'F');
@@ -163,7 +152,6 @@ export default function ESGReports() {
       doc.setTextColor(...WHITE);
       const score = metrics.avg_circularity_score ?? 0;
       doc.text(`${score} / 100`, 18, panelY + 18);
-      // Category label (right side)
       const getCat = (s) => s >= 85 ? 'Excellent Recovery' : s >= 70 ? 'High Recovery' : s >= 55 ? 'Moderate Recovery' : s >= 40 ? 'Limited Recovery' : 'Disposal Recommended';
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
@@ -172,9 +160,6 @@ export default function ESGReports() {
       doc.setFontSize(7.5);
       doc.text(`Waste Diversion Rate: ${metrics.waste_diversion_rate ?? '94.5%'}`, W - 18, panelY + 19, { align: 'right' });
 
-      // ─────────────────────────────────────────────────────
-      // 4. ESG SUMMARY TABLE
-      // ─────────────────────────────────────────────────────
       const tableStartY = panelY + 30;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
@@ -185,12 +170,12 @@ export default function ESGReports() {
       doc.line(12, tableStartY + 1.5, W - 12, tableStartY + 1.5);
 
       const esgRows = [
-        ['CO₂ Emissions Saved',  `${metrics.total_co2_saved_kg ?? 0} kg`,         'Carbon Footprint Reduction',      'Excellent'],
-        ['Water Conservation',   `${metrics.total_water_saved_liters ?? 0} L`,     'Freshwater Resource Recovery',   'High'],
-        ['Energy Recovered',     `${metrics.total_energy_saved_kwh ?? 0} kWh`,    'Industrial Energy Savings',      'High'],
-        ['Landfill Diverted',    `${metrics.total_landfill_diverted_kg ?? 0} kg`, 'Circular Economy Contribution',  'Excellent'],
-        ['Waste Diversion Rate', metrics.waste_diversion_rate ?? '94.5%',          'Overall Platform Effectiveness', 'Outstanding'],
-        ['Circularity Score',    `${metrics.avg_circularity_score ?? 0} / 100`,    'Weighted Circular Economy Index','High'],
+        ['CO₂ Emissions Saved', `${metrics.total_co2_saved_kg ?? 0} kg`, 'Carbon Footprint Reduction', 'Excellent'],
+        ['Water Conservation', `${metrics.total_water_saved_liters ?? 0} L`, 'Freshwater Resource Recovery', 'High'],
+        ['Energy Recovered', `${metrics.total_energy_saved_kwh ?? 0} kWh`, 'Industrial Energy Savings', 'High'],
+        ['Landfill Diverted', `${metrics.total_landfill_diverted_kg ?? 0} kg`, 'Circular Economy Contribution', 'Excellent'],
+        ['Waste Diversion Rate', metrics.waste_diversion_rate ?? '94.5%', 'Overall Platform Effectiveness', 'Outstanding'],
+        ['Circularity Score', `${metrics.avg_circularity_score ?? 0} / 100`, 'Weighted Circular Economy Index', 'High'],
       ];
 
       autoTable(doc, {
@@ -216,9 +201,6 @@ export default function ESGReports() {
         margin: { left: 12, right: 12 },
       });
 
-      // ─────────────────────────────────────────────────────
-      // 5. FOOTER
-      // ─────────────────────────────────────────────────────
       const totalPages = doc.internal.getNumberOfPages();
       for (let p = 1; p <= totalPages; p++) {
         doc.setPage(p);
@@ -255,7 +237,6 @@ export default function ESGReports() {
     }
   };
 
-  // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -268,10 +249,7 @@ export default function ESGReports() {
   const category = getCategoryFromScore(avgScore);
 
   return (
-    // Outer wrapper holds the export button OUTSIDE the captured area (no button in PDF)
     <div className="p-6 max-w-6xl mx-auto space-y-4 animate-fade-in">
-
-      {/* ── Page header with Export button ────────────────────────────── */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -282,7 +260,6 @@ export default function ESGReports() {
           </p>
         </div>
 
-        {/* Export to PDF button */}
         <button
           id="esg-export-btn"
           onClick={handleExportPDF}
@@ -303,9 +280,7 @@ export default function ESGReports() {
         </button>
       </div>
 
-      {/* ── CRITICAL: This div is the capture target ─────────────────────── */}
       <div id="esg-report-content" className="space-y-6 glass-card rounded-2xl p-6">
-
         {error ? (
           <div className="bg-red-50 p-4 rounded-lg flex items-center gap-3 text-red-600">
             <AlertCircle className="w-5 h-5" />
@@ -313,10 +288,7 @@ export default function ESGReports() {
           </div>
         ) : (
           <>
-            {/* ── KPI cards grid ────────────────────────────────────────── */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-2">
-
-              {/* CO₂ Saved */}
               <div className="glass-card p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
                 <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-3 rounded-xl mb-4 border border-emerald-500/10 group-hover:scale-110 transition-transform duration-300">
                   <TrendingUp className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
@@ -329,7 +301,6 @@ export default function ESGReports() {
                 <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">↑ Carbon Footprint Reduced</span>
               </div>
 
-              {/* Water Conservation */}
               <div className="glass-card p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
                 <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 p-3 rounded-xl mb-4 border border-blue-500/10 group-hover:scale-110 transition-transform duration-300">
                   <Droplets className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -342,7 +313,6 @@ export default function ESGReports() {
                 <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-1">↑ High Industry Benchmark</span>
               </div>
 
-              {/* Energy Saved */}
               <div className="glass-card p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
                 <div className="bg-gradient-to-br from-amber-500/10 to-yellow-500/10 p-3 rounded-xl mb-4 border border-amber-500/10 group-hover:scale-110 transition-transform duration-300">
                   <Zap className="w-6 h-6 text-amber-600 dark:text-amber-400" />
@@ -355,7 +325,6 @@ export default function ESGReports() {
                 <span className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1">↑ Resource Recovery</span>
               </div>
 
-              {/* Landfill Diverted */}
               <div className="glass-card p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
                 <div className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 p-3 rounded-xl mb-4 border border-purple-500/10 group-hover:scale-110 transition-transform duration-300">
                   <Recycle className="w-6 h-6 text-purple-600 dark:text-purple-400" />
@@ -371,7 +340,6 @@ export default function ESGReports() {
               </div>
             </div>
 
-            {/* ── Circularity Score Panel ─────────────────────────────────────────── */}
             <div className="glass-card p-6 rounded-2xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
               <div className="flex items-center gap-2 mb-4">
                 <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-500/10 to-yellow-500/10">
@@ -415,7 +383,7 @@ export default function ESGReports() {
             </div>
           </>
         )}
-      </div>{/* end #esg-report-content */}
+      </div>
     </div>
   );
 }
