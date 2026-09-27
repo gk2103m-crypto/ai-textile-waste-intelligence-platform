@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { Factory, ShieldAlert, Loader2 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
-// Updated to point to correct Render URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
 
 export default function ManufacturerManagement() {
@@ -35,7 +34,9 @@ export default function ManufacturerManagement() {
       })
       .then(res => {
         const data = Array.isArray(res.data) ? res.data : [];
-        setManufacturers(data.filter(u => u && u.role === 'Textile Manufacturer'));
+        // Flexible case-insensitive filter for MANUFACTURER or Textile Manufacturer
+        const filtered = data.filter(u => u && u.role && u.role.toLowerCase().includes('manufacturer'));
+        setManufacturers(filtered);
       })
       .catch(err => {
         console.error('Error fetching manufacturers:', err);
