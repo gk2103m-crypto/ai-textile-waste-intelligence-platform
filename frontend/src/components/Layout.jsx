@@ -1,6 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Leaf, LogOut, Sun, Moon } from 'lucide-react';
-import { MENU_CONFIG } from '../config/menuConfig';
 import ToastNotification from './ToastNotification';
 import { useTheme } from '../context/ThemeContext';
 
@@ -9,30 +8,35 @@ export default function Layout() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  // Normalize role string (removes underscores and extra spaces for matching)
-  const normalizeRole = (roleStr) =>
-    (roleStr || '').toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  const rawRole = (user?.role || '').toUpperCase().trim();
+  const isAdmin = rawRole.includes('ADMIN');
 
-  const userRole = normalizeRole(user?.role);
+  // Permanent Menu - External import failure aagadha padhi direct dynamic array
+  const menuItems = [
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/ai-analysis', label: 'AI Analysis' },
+    { path: '/sustainability', label: 'Sustainability Manager' },
+    { path: '/esg-reports', label: 'ESG Reports' },
+    { path: '/inventory', label: 'My Inventory' },
+  ];
 
-  // Match key in MENU_CONFIG seamlessly
-  const matchedRoleKey = Object.keys(MENU_CONFIG).find(
-    (key) => normalizeRole(key) === userRole
-  );
-
-  const menu = matchedRoleKey ? MENU_CONFIG[matchedRoleKey] : [];
+  if (isAdmin) {
+    menuItems.push(
+      { path: '/admin/users', label: 'User Management' },
+      { path: '/admin/manufacturers', label: 'Manufacturer Management' }
+    );
+  }
 
   const { isDark, toggleTheme } = useTheme();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.clear();
     navigate('/login');
   };
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-      {/* Module 11: Global Toast Notification Stack */}
+      {/* Global Toast Notification Stack */}
       <ToastNotification />
 
       {/* ── Sidebar ── */}
@@ -47,14 +51,9 @@ export default function Layout() {
           </span>
         </div>
 
-        {/* Nav */}
+        {/* Dynamic Navigation Menu */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {menu.length === 0 && (
-            <div className="px-3 py-4 text-sm text-slate-500 text-center">
-              Loading Menus...
-            </div>
-          )}
-          {menu.map((item) => {
+          {menuItems.map((item) => {
             const active = location.pathname === item.path;
             return (
               <Link
@@ -71,7 +70,7 @@ export default function Layout() {
           })}
         </nav>
 
-        {/* Footer hint */}
+        {/* Footer */}
         <div className="px-4 py-3 border-t border-white/30 dark:border-slate-800/60">
           <p className="text-[10px] text-slate-400 dark:text-slate-600 font-medium tracking-wide text-center">
             AI Textile Waste Platform © 2026
@@ -97,12 +96,14 @@ export default function Layout() {
             {/* Divider */}
             <div className="w-px h-5 bg-slate-200 dark:bg-slate-700" />
 
-            {/* User name */}
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{user.name || user.username || 'User'}</span>
+            {/* User details */}
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              {user.name || user.username || 'User'}
+            </span>
 
-            {/* Role badge */}
+            {/* Role Badge */}
             <span className="text-xs bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-semibold border border-emerald-500/20 capitalize">
-              {matchedRoleKey || user.role || 'Guest'}
+              {user.role || 'Guest'}
             </span>
 
             {/* Logout */}
