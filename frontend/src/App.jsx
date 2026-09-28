@@ -10,6 +10,7 @@ import SustainabilityDataset from './pages/SustainabilityDataset';
 import ESGReports from './pages/ESGReports';
 import RecyclingOpportunities from './pages/RecyclingOpportunities';
 import Layout from './components/Layout';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
   return (
@@ -20,14 +21,17 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route element={<Layout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/analysis" element={<Analysis />} />
-          <Route path="/inventory" element={<InventoryDashboard />} />
-          <Route path="/admin/users" element={<UserManagement />} />
-          <Route path="/admin/manufacturers" element={<ManufacturerManagement />} />
-          <Route path="/sustainability" element={<SustainabilityDataset />} />
-          <Route path="/esg-reports" element={<ESGReports />} />
-          <Route path="/recycling-opportunities" element={<RecyclingOpportunities />} />
+          <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+          {/* Both /analysis and /ai-analysis point to same page — sidebar uses /ai-analysis */}
+          <Route path="/analysis" element={<ErrorBoundary><Analysis /></ErrorBoundary>} />
+          <Route path="/ai-analysis" element={<ErrorBoundary><Analysis /></ErrorBoundary>} />
+          <Route path="/inventory" element={<ErrorBoundary><InventoryDashboard /></ErrorBoundary>} />
+          <Route path="/admin/users" element={<ErrorBoundary><UserManagement /></ErrorBoundary>} />
+          <Route path="/admin/manufacturers" element={<ErrorBoundary><ManufacturerManagement /></ErrorBoundary>} />
+          <Route path="/sustainability" element={<ErrorBoundary><SustainabilityDataset /></ErrorBoundary>} />
+          <Route path="/sustainability-manager" element={<ErrorBoundary><SustainabilityDataset /></ErrorBoundary>} />
+          <Route path="/esg-reports" element={<ErrorBoundary><ESGReports /></ErrorBoundary>} />
+          <Route path="/recycling-opportunities" element={<ErrorBoundary><RecyclingOpportunities /></ErrorBoundary>} />
         </Route>
       </Routes>
     </Router>

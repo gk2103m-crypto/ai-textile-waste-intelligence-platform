@@ -15,7 +15,11 @@ app = FastAPI(
 # 1. Configure CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "*",  # Development / all origins
+        "https://ai-textile-waste-intelligence-platf.vercel.app",
+        "https://ai-textile-waste-intelligence-platform.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

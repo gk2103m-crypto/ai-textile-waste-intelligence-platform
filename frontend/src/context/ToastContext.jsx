@@ -59,12 +59,19 @@ export function ToastProvider({ children }) {
 
 /**
  * useToast — custom hook to access the toast API
- * Must be called inside a component that is a descendant of <ToastProvider>
+ * Must be called inside a component that is a descendant of <ToastProvider>.
+ * Returns a no-op fallback if context is unavailable (prevents crash → blank screen).
  */
 export function useToast() {
   const ctx = useContext(ToastContext);
   if (!ctx) {
-    throw new Error('useToast() must be used inside a <ToastProvider>. Check your main.jsx wrapping.');
+    // Graceful degradation — log warning but don't crash the page
+    console.warn('useToast() called outside <ToastProvider>. Toasts will not be shown.');
+    return {
+      toasts: [],
+      addToast: (opts) => console.warn('[Toast fallback]', opts?.title, opts?.message),
+      removeToast: () => {},
+    };
   }
   return ctx;
 }

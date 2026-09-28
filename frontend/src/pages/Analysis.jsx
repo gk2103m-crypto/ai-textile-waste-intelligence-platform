@@ -6,6 +6,7 @@ import {
   Sparkles, Recycle, FlaskConical, ChevronRight, ImagePlus, BarChart3
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { API_BASE_URL } from '../config/api';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Material Knowledge Base
@@ -278,7 +279,7 @@ function BatchAnalysis({ addToast }) {
 
       try {
         const token = localStorage.getItem('token') || '';
-        const res = await fetch('http://127.0.0.1:8000/api/inventory/upload', {
+        const res = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
           method: 'POST',
           headers: token ? { 'Authorization': `Bearer ${token}` } : {},
           body: formData,
@@ -473,9 +474,8 @@ export default function AiAnalysis() {
   const [processingTime, setProcessingTime] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Defensive Toast Access
-  const toastCtx = useToast ? useToast() : null;
-  const addToast = toastCtx?.addToast || console.log;
+  // Toast hook — always called unconditionally (React rules of hooks)
+  const { addToast } = useToast();
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -509,7 +509,7 @@ export default function AiAnalysis() {
 
     try {
       const token = localStorage.getItem('token') || '';
-      const response = await fetch('http://127.0.0.1:8000/api/inventory/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
