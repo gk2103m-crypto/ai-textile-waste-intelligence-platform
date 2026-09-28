@@ -19,19 +19,6 @@ const FALLBACK_METRICS = {
   waste_diversion_rate: '0%',
 };
 
-/** Retry an async fn up to `maxAttempts` times with `delayMs` gap between tries */
-async function fetchWithRetry(fn, maxAttempts = 3, delayMs = 1500) {
-  let lastErr;
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      return await fn();
-    } catch (err) {
-      lastErr = err;
-      if (i < maxAttempts - 1) await new Promise((r) => setTimeout(r, delayMs));
-    }
-  }
-  throw lastErr;
-}
 
 const getCategoryFromScore = (score) => {
   if (score >= 85) return 'Excellent Recovery Potential';
@@ -44,77 +31,81 @@ const getCategoryFromScore = (score) => {
 export default function ESGReports() {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [usingFallback, setUsingFallback] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [backendDown, setBackendDown] = useState(false);
   const [exportingPDF, setExportingPDF] = useState(false);
 
   const { addToast } = useToast();
   const toastFired = useRef(false);
+  const attemptRef = useRef(0);
+  const MAX_ATTEMPTS = 8;
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const data = await fetchWithRetry(async () => {
-          const response = await axios.get(
-            `${API_BASE_URL}/api/inventory/sustainability-stats`,
-            {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-              timeout: 15000,
-            }
-          );
-          return response.data;
-        }, 3, 1500);
+    let cancelled = false;
 
-        setMetrics(data);
-        setUsingFallback(false);
+    const tryFetch = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/api/inventory/sustainability-stats`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            timeout: 12000,
+          }
+        );
+
+        if (cancelled) return;
+
+        setMetrics(response.data);
+        setLoading(false);
+        setBackendDown(false);
 
         if (!toastFired.current) {
           toastFired.current = true;
           addToast({
             type: 'info',
             title: '📊 ESG Report Updated',
-            message: 'Your sustainability metrics have been refreshed with live data from the platform.',
-            duration: 4000,
+            message: 'Sustainability metrics loaded successfully.',
+            duration: 3500,
           });
-
-          const co2 = data?.total_co2_saved_kg || 0;
+          const co2 = response.data?.total_co2_saved_kg || 0;
           if (co2 >= 50) {
             addToast({
               type: 'success',
               title: '🌍 Sustainability Milestone!',
-              message: `Outstanding! You've diverted ${co2} kg of CO₂ from the atmosphere through circular textile recovery.`,
+              message: `Outstanding! You've diverted ${co2} kg of CO₂ through circular textile recovery.`,
               duration: 7000,
             });
           } else if (co2 > 0) {
             addToast({
               type: 'success',
               title: '♻️ Recycling Opportunity Active',
-              message: `${co2} kg CO₂ saved so far. Keep scanning textile batches to hit the 50 kg milestone!`,
+              message: `${co2} kg CO₂ saved so far. Keep scanning to hit the 50 kg milestone!`,
               duration: 5000,
             });
           }
         }
       } catch (err) {
-        // Backend unavailable (Render cold start / CORS) — use fallback so UI never breaks
-        console.warn('ESG metrics unavailable after retries, using fallback data:', err?.message);
-        setMetrics(FALLBACK_METRICS);
-        setUsingFallback(true);
+        if (cancelled) return;
+        attemptRef.current += 1;
+        setRetryCount(attemptRef.current);
+        console.warn(`ESG fetch attempt ${attemptRef.current}/${MAX_ATTEMPTS} failed:`, err?.message);
 
-        if (!toastFired.current) {
-          toastFired.current = true;
-          addToast({
-            type: 'warning',
-            title: '⚠️ Using Cached ESG Data',
-            message: 'Live metrics are temporarily unavailable. Showing baseline values — data refreshes on next scan.',
-            duration: 6000,
-          });
+        if (attemptRef.current < MAX_ATTEMPTS) {
+          // Backend still waking up — schedule next attempt in 8s (skeleton stays visible)
+          setTimeout(tryFetch, 8000);
+        } else {
+          // All attempts exhausted — show fallback as last resort
+          console.warn('ESG: all attempts exhausted, showing fallback data');
+          setMetrics(FALLBACK_METRICS);
+          setBackendDown(true);
+          setLoading(false);
         }
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchAnalytics();
+    tryFetch();
+    return () => { cancelled = true; };
   }, []);
 
   const handleExportPDF = () => {
@@ -279,8 +270,49 @@ export default function ESGReports() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+      <div className="p-6 max-w-6xl mx-auto space-y-4">
+        {/* Page header skeleton */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <div className="h-8 w-72 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+            <div className="h-4 w-96 bg-slate-100 dark:bg-slate-700 rounded-lg animate-pulse" />
+          </div>
+          <div className="h-10 w-44 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
+        </div>
+
+        <div className="glass-card rounded-2xl p-6 space-y-6">
+          {/* Connecting indicator */}
+          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm">
+            <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+            <span>
+              Connecting to analytics server
+              {retryCount > 0 ? ` — attempt ${retryCount + 1} of ${MAX_ATTEMPTS}…` : '…'}
+            </span>
+          </div>
+
+          {/* 4-column metric card skeletons */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="glass-card p-6 rounded-2xl flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                <div className="h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                <div className="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
+              </div>
+            ))}
+          </div>
+
+          {/* Score card skeleton */}
+          <div className="glass-card p-6 rounded-2xl space-y-4">
+            <div className="h-4 w-64 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+            <div className="flex gap-6 items-center">
+              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+              <div className="flex-1 space-y-3">
+                <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                <div className="h-3 w-3/4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -321,10 +353,10 @@ export default function ESGReports() {
       </div>
 
       <div id="esg-report-content" className="space-y-6 glass-card rounded-2xl p-6">
-        {usingFallback && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 p-3 rounded-lg flex items-center gap-3 text-amber-700 dark:text-amber-400 text-sm">
+        {backendDown && (
+          <div className="bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-3 rounded-lg flex items-center gap-3 text-slate-500 dark:text-slate-400 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0" />
-            <p>Live backend is warming up — showing baseline metrics. Data auto-refreshes after a moment.</p>
+            <p>Analytics server is temporarily offline. Scan a new textile item to wake it up and refresh data.</p>
           </div>
         )}
         {metrics && (
