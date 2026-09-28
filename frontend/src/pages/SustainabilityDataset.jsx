@@ -8,32 +8,35 @@ import {
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
+// Unified Backend API Base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Score colour helpers — used for both the pill and the progress bar
 // ─────────────────────────────────────────────────────────────────────────────
 const getScoreTheme = (score) => {
   if (score >= 85) return {
-    bar:   '#10b981',   // emerald-500
-    pill:  'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
-    ring:  'text-emerald-500',
+    bar: '#10b981',   // emerald-500
+    pill: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+    ring: 'text-emerald-500',
     badge: 'bg-emerald-600',
   };
   if (score >= 70) return {
-    bar:   '#3b82f6',   // blue-500
-    pill:  'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
-    ring:  'text-blue-500',
+    bar: '#3b82f6',   // blue-500
+    pill: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+    ring: 'text-blue-500',
     badge: 'bg-blue-600',
   };
   if (score >= 55) return {
-    bar:   '#f59e0b',   // amber-500
-    pill:  'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
-    ring:  'text-amber-500',
+    bar: '#f59e0b',   // amber-500
+    pill: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+    ring: 'text-amber-500',
     badge: 'bg-amber-600',
   };
   return {
-    bar:   '#ef4444',   // red-500
-    pill:  'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30',
-    ring:  'text-rose-500',
+    bar: '#ef4444',   // red-500
+    pill: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30',
+    ring: 'text-rose-500',
     badge: 'bg-rose-600',
   };
 };
@@ -64,9 +67,9 @@ const ConditionBadge = ({ condition }) => {
 // Individual Inventory Card
 // ─────────────────────────────────────────────────────────────────────────────
 function SustainabilityCard({ item }) {
-  const score  = Number(item.circularity_score || 0);
-  const theme  = getScoreTheme(score);
-  const cat    = item.circularity_category || 'Uncategorised';
+  const score = Number(item.circularity_score || 0);
+  const theme = getScoreTheme(score);
+  const cat = item.circularity_category || 'Uncategorised';
 
   return (
     <div className="glass-card rounded-2xl border border-white/40 dark:border-slate-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden">
@@ -139,20 +142,20 @@ function SustainabilityCard({ item }) {
 // Score Summary Stats bar
 // ─────────────────────────────────────────────────────────────────────────────
 function StatBar({ items }) {
-  const total   = items.length;
+  const total = items.length;
   const avgScore = total > 0
     ? (items.reduce((s, i) => s + Number(i.circularity_score || 0), 0) / total).toFixed(1)
     : 0;
   const excellent = items.filter(i => Number(i.circularity_score) >= 85).length;
-  const low       = items.filter(i => Number(i.circularity_score) < 55).length;
+  const low = items.filter(i => Number(i.circularity_score) < 55).length;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {[
-        { label: 'Total Batches',   value: total,        color: 'text-slate-900 dark:text-white' },
+        { label: 'Total Batches', value: total, color: 'text-slate-900 dark:text-white' },
         { label: 'Avg Circularity', value: `${avgScore}`, color: 'text-emerald-600 dark:text-emerald-400' },
-        { label: 'High Recovery',   value: excellent,    color: 'text-blue-600 dark:text-blue-400' },
-        { label: 'Low Priority',    value: low,          color: 'text-rose-600 dark:text-rose-400' },
+        { label: 'High Recovery', value: excellent, color: 'text-blue-600 dark:text-blue-400' },
+        { label: 'Low Priority', value: low, color: 'text-rose-600 dark:text-rose-400' },
       ].map(({ label, value, color }) => (
         <div key={label} className="glass-card border border-white/40 dark:border-slate-800/50 rounded-2xl px-4 py-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
           <p className={`text-2xl font-extrabold tracking-tight ${color}`}>{value}</p>
@@ -167,10 +170,10 @@ function StatBar({ items }) {
 // MAIN PAGE COMPONENT — Sustainability Manager
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SustainabilityDataset() {
-  const [items, setItems]           = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [sortBy, setSortBy]         = useState('score_desc');
-  const [search, setSearch]         = useState('');
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('score_desc');
+  const [search, setSearch] = useState('');
   const [exportingPDF, setExportingPDF] = useState(false);
 
   const { addToast } = useToast();
@@ -178,7 +181,7 @@ export default function SustainabilityDataset() {
   const fetchData = () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    axios.get('http://localhost:8000/api/inventory', {
+    axios.get(`${API_BASE_URL}/api/inventory`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     })
       .then(res => setItems(res.data))
@@ -196,7 +199,7 @@ export default function SustainabilityDataset() {
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const W = doc.internal.pageSize.getWidth();
       const H = doc.internal.pageSize.getHeight();
-      
+
       const GREEN = [16, 185, 129];
       const DARK = [15, 23, 42];
       const WHITE = [255, 255, 255];
@@ -229,7 +232,7 @@ export default function SustainabilityDataset() {
       const kpiY = 44;
       const kpiH = 26;
       const kpiW = (W - 24) / 4;
-      
+
       const kpis = [
         { label: 'Total Batches', value: `${total}`, color: [59, 130, 246] },
         { label: 'Avg Circularity', value: `${avgScore}`, color: [16, 185, 129] },
@@ -326,9 +329,9 @@ export default function SustainabilityDataset() {
     )
     .sort((a, b) => {
       if (sortBy === 'score_desc') return Number(b.circularity_score || 0) - Number(a.circularity_score || 0);
-      if (sortBy === 'score_asc')  return Number(a.circularity_score || 0) - Number(b.circularity_score || 0);
-      if (sortBy === 'id_asc')     return Number(a.batch_id) - Number(b.batch_id);
-      if (sortBy === 'fabric')     return (a.fabric_type || '').localeCompare(b.fabric_type || '');
+      if (sortBy === 'score_asc') return Number(a.circularity_score || 0) - Number(b.circularity_score || 0);
+      if (sortBy === 'id_asc') return Number(a.batch_id) - Number(b.batch_id);
+      if (sortBy === 'fabric') return (a.fabric_type || '').localeCompare(b.fabric_type || '');
       return 0;
     });
 
@@ -375,85 +378,85 @@ export default function SustainabilityDataset() {
       {/* ═══ CAPTURED CONTENT: everything below enters the PDF ════════════ */}
       <div id="sustainability-report-content" className="space-y-6">
 
-      {/* ═══ STAT BAR ═══════════════════════════════════════════════════════ */}
-      {!loading && items.length > 0 && <StatBar items={items} />}
+        {/* ═══ STAT BAR ═══════════════════════════════════════════════════════ */}
+        {!loading && items.length > 0 && <StatBar items={items} />}
 
-      {/* ═══ FILTER + SORT TOOLBAR ══════════════════════════════════════════ */}
-      {!loading && items.length > 0 && (
-        <div className="flex flex-wrap gap-3 items-center">
-          {/* Search */}
-          <div className="relative flex-1 min-w-48">
-            <PackageSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search fabric, category, or batch ID…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm rounded-xl glass-card text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all duration-200"
-            />
-          </div>
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            className="px-3 py-2 text-sm rounded-xl glass-card text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer transition-all duration-200"
-          >
-            <option value="score_desc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Score: High → Low</option>
-            <option value="score_asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Score: Low → High</option>
-            <option value="id_asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Batch ID</option>
-            <option value="fabric" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Fabric Type A–Z</option>
-          </select>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">
-            {processed.length} of {items.length} batches
-          </span>
-        </div>
-      )}
-
-      {/* ═══ STATES: Loading / Empty / Grid ════════════════════════════════ */}
-      {loading ? (
-        /* Loading skeleton */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="glass-card rounded-2xl border border-white/40 dark:border-slate-800/50 p-5 space-y-4 animate-pulse">
-              <div className="flex justify-between">
-                <div className="h-5 w-32 bg-slate-200/80 dark:bg-slate-800 rounded-lg" />
-                <div className="h-5 w-10 bg-slate-200/80 dark:bg-slate-800 rounded-lg" />
-              </div>
-              <div className="h-2.5 w-full bg-slate-200/80 dark:bg-slate-800 rounded-full" />
-              <div className="h-4 w-24 bg-slate-200/80 dark:bg-slate-800 rounded-full" />
+        {/* ═══ FILTER + SORT TOOLBAR ══════════════════════════════════════════ */}
+        {!loading && items.length > 0 && (
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* Search */}
+            <div className="relative flex-1 min-w-48">
+              <PackageSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search fabric, category, or batch ID…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 text-sm rounded-xl glass-card text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all duration-200"
+              />
             </div>
-          ))}
-        </div>
-      ) : items.length === 0 ? (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
-          <div className="w-20 h-20 glass-card border border-white/40 dark:border-slate-800/50 rounded-2xl flex items-center justify-center">
-            <Leaf className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+            {/* Sort */}
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="px-3 py-2 text-sm rounded-xl glass-card text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer transition-all duration-200"
+            >
+              <option value="score_desc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Score: High → Low</option>
+              <option value="score_asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Score: Low → High</option>
+              <option value="id_asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Batch ID</option>
+              <option value="fabric" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200">Fabric Type A–Z</option>
+            </select>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">
+              {processed.length} of {items.length} batches
+            </span>
           </div>
-          <div>
-            <p className="text-base font-bold text-slate-700 dark:text-slate-300">No inventory data yet</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Scan or add textile batches in the Inventory Dashboard to see circularity scores here.
-            </p>
+        )}
+
+        {/* ═══ STATES: Loading / Empty / Grid ════════════════════════════════ */}
+        {loading ? (
+          /* Loading skeleton */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="glass-card rounded-2xl border border-white/40 dark:border-slate-800/50 p-5 space-y-4 animate-pulse">
+                <div className="flex justify-between">
+                  <div className="h-5 w-32 bg-slate-200/80 dark:bg-slate-800 rounded-lg" />
+                  <div className="h-5 w-10 bg-slate-200/80 dark:bg-slate-800 rounded-lg" />
+                </div>
+                <div className="h-2.5 w-full bg-slate-200/80 dark:bg-slate-800 rounded-full" />
+                <div className="h-4 w-24 bg-slate-200/80 dark:bg-slate-800 rounded-full" />
+              </div>
+            ))}
           </div>
-        </div>
-      ) : processed.length === 0 ? (
-        /* No search results */
-        <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-          <PackageSearch className="w-10 h-10 text-slate-400 dark:text-slate-500" />
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No batches match your search</p>
-          <button onClick={() => setSearch('')} className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline">
-            Clear filter
-          </button>
-        </div>
-      ) : (
-        /* ── Cards Grid ── */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {processed.map(item => (
-            <SustainabilityCard key={item.batch_id} item={item} />
-          ))}
-        </div>
-      )}
+        ) : items.length === 0 ? (
+          /* Empty state */
+          <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+            <div className="w-20 h-20 glass-card border border-white/40 dark:border-slate-800/50 rounded-2xl flex items-center justify-center">
+              <Leaf className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+            </div>
+            <div>
+              <p className="text-base font-bold text-slate-700 dark:text-slate-300">No inventory data yet</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Scan or add textile batches in the Inventory Dashboard to see circularity scores here.
+              </p>
+            </div>
+          </div>
+        ) : processed.length === 0 ? (
+          /* No search results */
+          <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+            <PackageSearch className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">No batches match your search</p>
+            <button onClick={() => setSearch('')} className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline">
+              Clear filter
+            </button>
+          </div>
+        ) : (
+          /* ── Cards Grid ── */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {processed.map(item => (
+              <SustainabilityCard key={item.batch_id} item={item} />
+            ))}
+          </div>
+        )}
 
       </div>{/* end #sustainability-report-content */}
     </div>

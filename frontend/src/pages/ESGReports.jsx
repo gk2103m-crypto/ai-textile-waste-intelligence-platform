@@ -8,8 +8,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useToast } from '../context/ToastContext';
 
-// Correct Backend API URL added
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
+// Unified Backend API Base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
 
 const getCategoryFromScore = (score) => {
   if (score >= 85) return 'Excellent Recovery Potential';
@@ -32,7 +32,6 @@ export default function ESGReports() {
     const fetchAnalytics = async () => {
       try {
         const token = localStorage.getItem('token');
-        // Fixed URL from localhost to API_BASE_URL
         const response = await axios.get(
           `${API_BASE_URL}/api/inventory/sustainability-stats`,
           { headers: token ? { Authorization: `Bearer ${token}` } : {} }
