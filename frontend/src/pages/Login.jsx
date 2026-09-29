@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Leaf, LogIn, Zap } from 'lucide-react';
-
-// Define API base URL directly to avoid any missing file or path import errors
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
+import { API_BASE_URL } from '../config/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -30,7 +28,7 @@ export default function Login() {
 
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid Email or Password! Please try again.');
+      setError(err.response?.data?.detail || 'Invalid Email or Password! Please try again.');
     } finally {
       setLoading(false);
     }

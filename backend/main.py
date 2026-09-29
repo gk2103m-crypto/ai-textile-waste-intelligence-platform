@@ -16,7 +16,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "*",  # Development / all origins
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:3000",
+        "http://localhost:8000",
         "https://ai-textile-waste-intelligence-platf.vercel.app",
         "https://ai-textile-waste-intelligence-platform.vercel.app",
     ],

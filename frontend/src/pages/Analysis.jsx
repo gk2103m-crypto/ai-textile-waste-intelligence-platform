@@ -266,6 +266,13 @@ function BatchAnalysis({ addToast }) {
       processing: false,
     })));
 
+    // Health check ping for Render cold start
+    try {
+      await fetch(`${API_BASE_URL}/`, { method: 'GET' });
+    } catch (e) {
+      console.warn('Initial ping to Render API failed, server might be waking up.', e);
+    }
+
     for (let i = 0; i < batchFiles.length; i++) {
       setProgress({ current: i + 1, total });
 
@@ -277,24 +284,45 @@ function BatchAnalysis({ addToast }) {
       formData.append('file', batchFiles[i]);
       formData.append('condition', 'Torn');
 
-      try {
-        const token = localStorage.getItem('token') || '';
-        const res = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
-          method: 'POST',
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-          body: formData,
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+      let attempt = 0;
+      const MAX_RETRIES = 3;
+      let successData = null;
+      let lastError = null;
+
+      while (attempt < MAX_RETRIES) {
+        try {
+          attempt++;
+          const token = localStorage.getItem('token') || '';
+          const res = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData,
+          });
+          if (!res.ok) {
+            const errTxt = await res.text();
+            throw new Error(`HTTP ${res.status}: ${errTxt}`);
+          }
+          successData = await res.json();
+          break;
+        } catch (err) {
+          console.error(`Batch item ${i} attempt ${attempt} failed:`, err);
+          lastError = err;
+          if (attempt < MAX_RETRIES) {
+             await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+          }
+        }
+      }
+
+      if (successData) {
         setBatchItems(prev =>
           prev.map((item, idx) =>
-            idx === i ? { ...item, result: data, error: null, processing: false } : item
+            idx === i ? { ...item, result: successData, error: null, processing: false } : item
           )
         );
-      } catch (err) {
+      } else {
         setBatchItems(prev =>
           prev.map((item, idx) =>
-            idx === i ? { ...item, result: null, error: err.message || 'Failed', processing: false } : item
+            idx === i ? { ...item, result: null, error: lastError?.message || 'Failed', processing: false } : item
           )
         );
       }
@@ -507,36 +535,61 @@ export default function AiAnalysis() {
     formData.append('file', selectedFile);
     formData.append('condition', 'Torn');
 
-    try {
-      const token = localStorage.getItem('token') || '';
-      const response = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
-        method: 'POST',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-        body: formData,
-      });
-      if (!response.ok) throw new Error('Analysis Failed');
-      const data = await response.json();
-      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-      setAnalysisResult(data);
-      setProcessingTime(elapsed);
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+    let data = null;
+    const token = localStorage.getItem('token') || '';
 
-      addToast({
-        type: 'success',
-        title: '✅ Analysis Complete',
-        message: `${data.detected_material || 'Material'} identified — Circularity Score: ${data.circularity_score || 0}/100`,
-        duration: 5000,
-      });
-    } catch (error) {
-      console.error('Error during analysis:', error);
-      addToast({
-        type: 'error',
-        title: '❌ Analysis Failed',
-        message: 'Backend connection failed. Check if server is running.',
-        duration: 6000,
-      });
-    } finally {
-      setLoading(false);
+    // Health check ping for Render cold start
+    try {
+      await fetch(`${API_BASE_URL}/`, { method: 'GET' });
+    } catch (e) {
+      console.warn('Initial ping to Render API failed, server might be waking up.', e);
     }
+
+    while (attempt < MAX_RETRIES) {
+      try {
+        attempt++;
+        const response = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
+          method: 'POST',
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        data = await response.json();
+        break; // Success
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === MAX_RETRIES) {
+          addToast({
+            type: 'error',
+            title: '❌ Analysis Failed',
+            message: `Backend connection failed: ${error.message}. Check if server is running.`,
+            duration: 6000,
+          });
+          setLoading(false);
+          return;
+        }
+        // Exponential backoff for cold starts
+        await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+      }
+    }
+
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+    setAnalysisResult(data);
+    setProcessingTime(elapsed);
+
+    addToast({
+      type: 'success',
+      title: '✅ Analysis Complete',
+      message: `${data.detected_material || 'Material'} identified — Circularity Score: ${data.circularity_score || 0}/100`,
+      duration: 5000,
+    });
+    setLoading(false);
   };
 
   const downloadPDFReport = () => {

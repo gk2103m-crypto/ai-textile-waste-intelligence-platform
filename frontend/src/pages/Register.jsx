@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Leaf, UserPlus } from 'lucide-react';
 import { useToast } from '../context/ToastContext'; // Use toast for success
+import { API_BASE_URL } from '../config/api';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:8000/api/auth/register', form);
+      await axios.post(`${API_BASE_URL}/api/auth/register`, form);
 
       // Show success toast
       addToast({
