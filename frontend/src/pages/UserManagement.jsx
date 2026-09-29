@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { Trash2, Users, ShieldAlert, RefreshCw, Loader2 } from 'lucide-react';
-
-// Updated to point to correct Render URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
-
+import { apiClient as axios } from '../config/api';
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,14 +29,11 @@ export default function UserManagement() {
 
   const fetchUsers = () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
     axios
-      .get(`${API_BASE_URL}/api/auth/users`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
+      .get(`/api/auth/users`)
       .then(res => {
-        const data = Array.isArray(res.data) ? res.data : [];
-        setUsers(data);
+        const data = res?.data ?? [];
+        setUsers(Array.isArray(data) ? data : []);
       })
       .catch(err => {
         console.error('Error fetching users:', err);
@@ -59,10 +52,7 @@ export default function UserManagement() {
     if (!window.confirm(`Are you sure you want to delete user "${username}"? This cannot be undone.`)) return;
     setDeletingId(userId);
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${API_BASE_URL}/api/auth/users/${userId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      await axios.delete(`/api/auth/users/${userId}`);
       addToast({
         type: 'warning',
         title: 'User Deleted',
@@ -131,12 +121,12 @@ export default function UserManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/20 dark:divide-slate-800/60 text-slate-900 dark:text-slate-200">
-            {!Array.isArray(users) || users.length === 0 ? (
+            {!(Array.isArray(users) && users.length > 0) ? (
               <tr>
                 <td colSpan="5" className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">No users found.</td>
               </tr>
             ) : (
-              users.map(u => (
+              (users ?? []).map(u => (
                 <tr
                   key={u.id}
                   className="hover:bg-emerald-50/40 dark:hover:bg-emerald-900/10 transition-colors duration-150"

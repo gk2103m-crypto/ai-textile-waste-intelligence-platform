@@ -3,11 +3,10 @@ import {
   Leaf, TrendingUp, Award, Loader2, AlertCircle,
   Recycle, Droplets, Zap, FileText,
 } from 'lucide-react';
-import axios from 'axios';
+import { apiClient as axios } from '../config/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useToast } from '../context/ToastContext';
-import { API_BASE_URL } from '../config/api';
 
 // ─── Mock fallback shown when backend is unavailable (Render cold start) ───
 const FALLBACK_METRICS = {
@@ -44,12 +43,10 @@ export default function ESGReports() {
     let cancelled = false;
 
     const tryFetch = async () => {
-      const token = localStorage.getItem('token');
       try {
         const response = await axios.get(
-          `${API_BASE_URL}/api/inventory/sustainability-stats`,
+          `/api/inventory/sustainability-stats`,
           {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
             timeout: 12000,
           }
         );

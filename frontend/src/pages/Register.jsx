@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-import { Leaf, UserPlus } from 'lucide-react';
+import { Leaf, UserPlus, Check, X } from 'lucide-react';
 import { useToast } from '../context/ToastContext'; // Use toast for success
-import { API_BASE_URL } from '../config/api';
+import { apiClient } from '../config/api';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -17,14 +16,32 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isTouched, setIsTouched] = useState(false);
+
+  // Password validation requirements
+  const passwordRules = [
+    { id: 'length', regex: /.{8,}/, text: 'Minimum 8 characters' },
+    { id: 'uppercase', regex: /[A-Z]/, text: 'At least 1 uppercase letter' },
+    { id: 'lowercase', regex: /[a-z]/, text: 'At least 1 lowercase letter' },
+    { id: 'number', regex: /[0-9]/, text: 'At least 1 number' },
+    { id: 'special', regex: /[@$!%*?&]/, text: 'At least 1 special character (@$!%*?&)' },
+  ];
+
+  const isValidPassword = passwordRules.every((req) => req.regex.test(form.password));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    if (!isValidPassword) {
+      setError('Please ensure your password meets all security requirements.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await axios.post(`${API_BASE_URL}/api/auth/register`, form);
+      await apiClient.post(`/api/auth/register`, form);
 
       // Show success toast
       addToast({
@@ -37,7 +54,7 @@ export default function Register() {
       // Redirect to login
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed! Please try again.');
+      setError(err.response?.data?.detail || err.message || 'Registration failed! Please try again.');
     } finally {
       setLoading(false);
     }
@@ -49,7 +66,7 @@ export default function Register() {
       <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 my-8">
         {/* Logo / Brand */}
         <div className="flex flex-col items-center mb-8 gap-3">
           <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
@@ -112,9 +129,32 @@ export default function Register() {
                 required
                 placeholder="••••••••"
                 value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onChange={(e) => {
+                  setForm({ ...form, password: e.target.value });
+                  setIsTouched(true);
+                }}
                 className="w-full px-4 py-2.5 bg-slate-800/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all duration-200"
               />
+              
+              {isTouched && (
+                <div className="mt-3 space-y-1.5">
+                  {passwordRules.map((rule) => {
+                    const isMet = rule.regex.test(form.password);
+                    return (
+                      <div key={rule.id} className="flex items-center gap-2 text-xs">
+                        {isMet ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        ) : (
+                          <X className="w-3.5 h-3.5 text-slate-500" />
+                        )}
+                        <span className={isMet ? 'text-emerald-500/90' : 'text-slate-500'}>
+                          {rule.text}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div>
@@ -143,8 +183,8 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-95 disabled:opacity-60 text-white font-semibold py-2.5 rounded-xl transition-all duration-200 shadow shadow-emerald-500/25 mt-2"
+              disabled={loading || (isTouched && !isValidPassword)}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all duration-200 shadow shadow-emerald-500/25 mt-4"
             >
               {loading ? (
                 <span className="flex items-center gap-2">

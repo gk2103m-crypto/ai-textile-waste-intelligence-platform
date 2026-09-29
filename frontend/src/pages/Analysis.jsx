@@ -6,7 +6,7 @@ import {
   Sparkles, Recycle, FlaskConical, ChevronRight, ImagePlus, BarChart3
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
-import { API_BASE_URL } from '../config/api';
+import { apiClient } from '../config/api';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Material Knowledge Base
@@ -268,7 +268,7 @@ function BatchAnalysis({ addToast }) {
 
     // Health check ping for Render cold start
     try {
-      await fetch(`${API_BASE_URL}/`, { method: 'GET' });
+      await apiClient.get('/');
     } catch (e) {
       console.warn('Initial ping to Render API failed, server might be waking up.', e);
     }
@@ -292,17 +292,8 @@ function BatchAnalysis({ addToast }) {
       while (attempt < MAX_RETRIES) {
         try {
           attempt++;
-          const token = localStorage.getItem('token') || '';
-          const res = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
-            method: 'POST',
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-            body: formData,
-          });
-          if (!res.ok) {
-            const errTxt = await res.text();
-            throw new Error(`HTTP ${res.status}: ${errTxt}`);
-          }
-          successData = await res.json();
+          const res = await apiClient.post('/api/inventory/upload', formData);
+          successData = res.data;
           break;
         } catch (err) {
           console.error(`Batch item ${i} attempt ${attempt} failed:`, err);
@@ -538,29 +529,17 @@ export default function AiAnalysis() {
     const MAX_RETRIES = 3;
     let attempt = 0;
     let data = null;
-    const token = localStorage.getItem('token') || '';
-
-    // Health check ping for Render cold start
     try {
-      await fetch(`${API_BASE_URL}/`, { method: 'GET' });
+      await apiClient.get('/');
     } catch (e) {
-      console.warn('Initial ping to Render API failed, server might be waking up.', e);
+      console.warn('Initial ping failed, server might be waking up.', e);
     }
 
     while (attempt < MAX_RETRIES) {
       try {
         attempt++;
-        const response = await fetch(`${API_BASE_URL}/api/inventory/upload`, {
-          method: 'POST',
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-          body: formData,
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
-        data = await response.json();
+        const response = await apiClient.post('/api/inventory/upload', formData);
+        data = response.data;
         break; // Success
       } catch (error) {
         console.error(`Attempt ${attempt} failed:`, error);

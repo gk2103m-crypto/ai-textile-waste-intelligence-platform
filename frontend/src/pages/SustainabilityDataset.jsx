@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { apiClient as axios } from '../config/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {
@@ -7,9 +7,6 @@ import {
   Award, AlertCircle, CheckCircle2, Recycle, PackageSearch, FileText
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
-
-// Unified Backend API Base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Score colour helpers — used for both the pill and the progress bar
@@ -180,11 +177,11 @@ export default function SustainabilityDataset() {
 
   const fetchData = () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
-    axios.get(`${API_BASE_URL}/api/inventory`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {}
-    })
-      .then(res => setItems(res.data))
+    axios.get(`/api/inventory`)
+      .then(res => {
+        const data = res?.data ?? [];
+        setItems(Array.isArray(data) ? data : []);
+      })
       .catch(err => console.error('Error fetching inventory:', err))
       .finally(() => setLoading(false));
   };
