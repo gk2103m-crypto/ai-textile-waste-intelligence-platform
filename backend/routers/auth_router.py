@@ -1,14 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from database import get_db
-from models import User, UserRole
-from auth import verify_password, get_password_hash, create_access_token
+from database import supabase
 from auth_dependencies import get_current_user, require_admin
+import enum
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-# All valid roles (kept in sync with UserRole enum)
+class UserRole(str, enum.Enum):
+    FACILITY_OPERATOR = "Recycling Facility Operator"
+    SUSTAINABILITY_MANAGER = "Sustainability Manager"
+    MANUFACTURER = "Textile Manufacturer"
+    ADMIN = "Administrator"
+
 VALID_ROLES = [role.value for role in UserRole]
 
 class RegisterRequest(BaseModel):
@@ -22,67 +25,86 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/register")
-def register(data: RegisterRequest, db: Session = Depends(get_db)):
-    # GAP-05 FIX: Validate role against the allowed Enum values
+def register(data: RegisterRequest):
     if data.role not in VALID_ROLES:
         raise HTTPException(
             status_code=400,
             detail=f"Invalid role '{data.role}'. Must be one of: {', '.join(VALID_ROLES)}"
         )
-    existing = db.query(User).filter(User.email == data.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    user = User(
-        username=data.username,
-        email=data.email,
-        hashed_password=get_password_hash(data.password),
-        role=data.role
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return {"message": "User registered successfully", "user_id": user.id}
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Supabase client not configured")
+        
+    try:
+        # Supabase Auth Sign Up
+        res = supabase.auth.sign_up({
+            "email": data.email, 
+            "password": data.password,
+            "options": {
+                "data": {
+                    "username": data.username,
+                    "role": data.role
+                }
+            }
+        })
+        
+        # Insert into public users table for easy querying
+        if res.user:
+            user_data = {
+                "id": res.user.id,
+                "username": data.username,
+                "email": data.email,
+                "role": data.role
+            }
+            supabase.table("users").insert(user_data).execute()
+        
+        return {"message": "User registered successfully", "user_id": res.user.id if res.user else None}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/login")
-def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.hashed_password):
+def login(data: LoginRequest):
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Supabase client not configured")
+        
+    try:
+        res = supabase.auth.sign_in_with_password({
+            "email": data.email, 
+            "password": data.password
+        })
+        
+        user_meta = res.user.user_metadata
+        return {
+            "access_token": res.session.access_token,
+            "token_type": "bearer",
+            "user": {"name": user_meta.get("username", data.email), "role": user_meta.get("role", "Administrator")}
+        }
+    except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    token = create_access_token({"sub": user.email, "role": user.role.value})
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {"name": user.username, "role": user.role.value}
-    }
 
 @router.get("/roles")
 def get_roles():
-    return [role.value for role in UserRole]
+    return VALID_ROLES
 
 @router.get("/users")
-def get_all_users(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)  # GAP-03 FIX: JWT auth guard added
-):
-    """
-    Returns all registered users. Requires a valid JWT token.
-    Admin-only operations (edit/delete) are performed via require_admin dependency.
-    """
-    users = db.query(User).all()
-    return [{"id": u.id, "username": u.username, "email": u.email, "role": u.role.value} for u in users]
+def get_all_users(current_user: dict = Depends(get_current_user)):
+    if not supabase:
+        return []
+    res = supabase.table("users").select("*").execute()
+    return res.data
 
 @router.delete("/users/{user_id}")
-def delete_user(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)  # Admin-only
-):
-    """Delete a user — Administrator only."""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    if user.id == current_user.id:
+def delete_user(user_id: str, current_user: dict = Depends(require_admin)):
+    if user_id == current_user.get("id"):
         raise HTTPException(status_code=400, detail="Cannot delete your own account")
-    db.delete(user)
-    db.commit()
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Supabase client not configured")
+        
+    supabase.table("users").delete().eq("id", user_id).execute()
+    
+    # Optional: Delete from auth.users (requires service_role key to be used in client)
+    try:
+        supabase.auth.admin.delete_user(user_id)
+    except Exception as e:
+        print(f"Failed to delete auth user: {e}")
+        
     return {"message": f"User #{user_id} deleted successfully"}

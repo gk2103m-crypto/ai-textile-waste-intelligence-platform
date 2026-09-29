@@ -15,3 +15,4 @@ scikit-learn
 pandas
 python-dotenv
 psycopg2-binary
+supabase>=2.3.4

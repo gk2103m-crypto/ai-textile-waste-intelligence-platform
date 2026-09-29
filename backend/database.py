@@ -1,28 +1,23 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from supabase import create_client, Client
 from dotenv import load_dotenv
 
 # Local env Variables load 
 load_dotenv(override=False)
 
-# Render Environment Variable- DATABASE_URL
-DATABASE_URL = os.environ.get("DATABASE_URL")
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+# Prefer SERVICE_ROLE_KEY for backend bypass of RLS if needed, or ANON_KEY
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_ANON_KEY")
 
-# Fallback for local testing if DATABASE_URL is not set
-if not DATABASE_URL:
-    DATABASE_URL = "sqlite:///./textile_waste.db"
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("WARNING: SUPABASE_URL or SUPABASE_KEY is missing. Supabase Client not initialized.")
+    supabase = None
+else:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-# Frontend & UI connectivity function
+# Frontend & UI connectivity function (Mocking DB session injection)
 def get_db():
-    db = SessionLocal()
     try:
-        yield db
+        yield supabase
     finally:
-        db.close()
+        pass
