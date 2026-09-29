@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiClient as axios } from './config/api';
 import { useToast } from './context/ToastContext'; // Module 11: Notification & Alert System
 
-// Unified Backend API Base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'https://ai-textile-waste-intelligence-platform-mccj.onrender.com';
+// Unified Backend API Base URL imported from config/api
 
 const InventoryDashboard = () => {
   const [inventory, setInventory] = useState([]);
@@ -26,9 +25,7 @@ const InventoryDashboard = () => {
   const fetchInventory = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/inventory`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      const res = await axios.get(`/api/inventory`);
       // Safe check: Ensure response data is an array before setting state
       const data = Array.isArray(res.data) ? res.data : [];
       setInventory(data);
@@ -57,7 +54,7 @@ const InventoryDashboard = () => {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       if (editItem) {
-        await axios.put(`${API_BASE_URL}/api/inventory/${editItem.batch_id}`, formData, { headers });
+        await axios.put(`/api/inventory/${editItem.batch_id}`, formData);
         setEditItem(null);
         // Module 11 — Success: edit saved
         addToast({
@@ -66,7 +63,7 @@ const InventoryDashboard = () => {
           message: `Batch #${editItem.batch_id} (${formData.fabric_type}) has been updated successfully.`,
         });
       } else {
-        await axios.post(`${API_BASE_URL}/api/inventory`, formData, { headers });
+        await axios.post(`/api/inventory`, formData);
         // Module 11 — Success: new inventory added
         addToast({
           type: 'success',
@@ -86,9 +83,7 @@ const InventoryDashboard = () => {
   const handleView = async (batch_id) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE_URL}/api/inventory/${batch_id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      const res = await axios.get(`/api/inventory/${batch_id}`);
       setViewItem(res.data);
     } catch (error) { console.error("Error fetching item:", error); }
   };
@@ -109,9 +104,7 @@ const InventoryDashboard = () => {
     if (!window.confirm(`Are you sure you want to permanently delete Batch #${batch_id}? This action cannot be undone.`)) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${API_BASE_URL}/api/inventory/${batch_id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      await axios.delete(`/api/inventory/${batch_id}`);
       fetchInventory();
       // Module 11 — Warning: deletion alert
       addToast({
@@ -138,13 +131,9 @@ const InventoryDashboard = () => {
     setAiResult(null);
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-      };
-
-      const res = await axios.post(`${API_BASE_URL}/api/inventory/upload`, uploadData, { headers });
+      const res = await axios.post(`/api/inventory/upload`, uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       console.log("🔥 AI BACKEND RESPONSE:", res.data);
       setAiResult(res.data);
       fetchInventory(); // Auto update inventory table
